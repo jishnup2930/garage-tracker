@@ -27,14 +27,15 @@ export const round2 = (n: number) => Math.round(n * 100) / 100
 /** Every spend in one list. Fuel and maintenance records are the only source for those categories. */
 export function costLines(d: Pick<AppData, 'fuel' | 'maintenance' | 'expenses'>): CostLine[] {
   return [
-    ...d.fuel.map<CostLine>((f) => ({
+    // Home charges with no known cost aren't spending.
+    ...d.fuel.filter((f) => f.totalCost > 0).map<CostLine>((f) => ({
       id: f.id,
       source: 'fuel',
       vehicleId: f.vehicleId,
       date: f.date,
       category: 'Fuel',
       amount: f.totalCost,
-      description: f.fuelStation ? `Fuel at ${f.fuelStation}` : 'Fuel refill',
+      description: f.fuelStation ? `${f.fuelType === 'Electric' ? 'Charging' : 'Fuel'} at ${f.fuelStation}` : f.fuelType === 'Electric' ? 'Charging' : 'Fuel refill',
       notes: f.notes,
     })),
     ...d.maintenance.map<CostLine>((m) => ({
@@ -161,12 +162,93 @@ export function mileageSegments(entries: FuelEntry[]): MileageSegment[] {
   return out
 }
 
+/**
+ * Refill-to-refill method for people who fill by amount, not to full: the fuel bought at one refill
+ * is used up by the next, so each gap is (distance to next refill) / (fuel bought at this one).
+ * Tank-level differences make single gaps noisy but they cancel out over many refills.
+ */
+export function intervalSegments(entries: FuelEntry[]): MileageSegment[] {
+  const sorted = [...entries].sort((a, b) => a.odometer - b.odometer || a.date.localeCompare(b.date))
+  const out: MileageSegment[] = []
+  let qty = 0
+  let cost = 0
+  for (let i = 0; i < sorted.length; i++) {
+    const e = sorted[i]
+    const distance = i ? e.odometer - sorted[i - 1].odometer : 0
+    if (i && distance > 0 && qty > 0) {
+      out.push({ date: e.date, odometer: e.odometer, distance, quantity: qty, cost, mileage: distance / qty })
+      qty = 0
+      cost = 0
+    }
+    // Same-odometer refills (distance 0) pile into the next gap.
+    qty += e.quantity
+    cost += e.totalCost
+  }
+  return out
+}
+
+/**
+ * Electric charges logged by battery %. Charge used between two charges is exact:
+ * (level after this charge) − (level before the next one). `mileage` here is km per full (100%) charge,
+ * and `quantity` is the battery % used.
+ */
+export function batterySegments(entries: FuelEntry[]): MileageSegment[] {
+  const sorted = [...entries].sort((a, b) => a.odometer - b.odometer || a.date.localeCompare(b.date))
+  const out: MileageSegment[] = []
+  for (let i = 1; i < sorted.length; i++) {
+    const a = sorted[i - 1]
+    const b = sorted[i]
+    if (a.batteryTo == null || b.batteryFrom == null) continue
+    const used = a.batteryTo - b.batteryFrom
+    const distance = b.odometer - a.odometer
+    if (used > 0 && distance > 0) out.push({ date: b.date, odometer: b.odometer, distance, quantity: used, cost: a.totalCost, mileage: (distance / used) * 100 })
+  }
+  return out
+}
+
+const costPer = (segs: MileageSegment[]) => {
+  const paid = segs.filter((s) => s.cost > 0)
+  const d = sum(paid.map((s) => s.distance))
+  return d > 0 ? sum(paid.map((s) => s.cost)) / d : null
+}
+
+/** Expects one vehicle's refills. */
 export function fuelStats(entries: FuelEntry[]) {
-  const segs = mileageSegments(entries)
+  const battery = batterySegments(entries)
+  if (battery.length) {
+    const dist = sum(battery.map((s) => s.distance))
+    return {
+      segments: battery,
+      /** 'battery': averageMileage/latestMileage are km per full charge (range). */
+      mode: 'battery' as const,
+      estimated: false,
+      refills: entries.length,
+      averageMileage: (dist / sum(battery.map((s) => s.quantity))) * 100,
+      latestMileage: battery[battery.length - 1].mileage,
+      // Only charges with a known cost count towards cost per km.
+      costPerDistance: costPer(battery),
+      totalQuantity: sum(entries.map((e) => e.quantity)),
+      totalCost: sum(entries.map((e) => e.totalCost)),
+    }
+  }
+  const full = mileageSegments(entries)
+  const odos = entries.map((e) => e.odometer)
+  const span = odos.length ? Math.max(...odos) - Math.min(...odos) : 0
+  // Full-to-full stretches are exact. Use them only while they cover at least half the logged distance
+  // and the user is still filling to full (at most 2 refills since the last full one); otherwise new
+  // refills would show nothing until the old full-tank history is outweighed.
+  const lastFull = Math.max(-Infinity, ...entries.filter((e) => e.isFullTank).map((e) => e.odometer))
+  const sinceFull = entries.filter((e) => e.odometer > lastFull).length
+  const exact = full.length > 0 && sum(full.map((s) => s.distance)) * 2 >= span && sinceFull <= 2
+  const segs = exact ? full : intervalSegments(entries)
   const dist = sum(segs.map((s) => s.distance))
   const qty = sum(segs.map((s) => s.quantity))
   return {
     segments: segs,
+    mode: (exact ? 'full' : 'interval') as 'full' | 'interval' | 'battery',
+    /** True when mileage comes from refill-to-refill gaps rather than full tanks. */
+    estimated: !exact,
+    refills: entries.length,
     averageMileage: qty > 0 ? dist / qty : null,
     latestMileage: segs.length ? segs[segs.length - 1].mileage : null,
     costPerDistance: dist > 0 ? sum(segs.map((s) => s.cost)) / dist : null,

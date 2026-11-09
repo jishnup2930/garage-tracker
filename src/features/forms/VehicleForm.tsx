@@ -1,7 +1,7 @@
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Bike, Car, CarFront, Truck, Shapes, type LucideIcon } from 'lucide-react'
+import { Motorbike, Car, CarFront, Truck, Shapes, type LucideIcon } from 'lucide-react'
 import { FUEL_TYPES, VEHICLE_TYPES, type Vehicle, type VehicleType } from '../../types'
 import { Field, Input, Select } from '../../components/ui/Field'
 import { ImagePicker } from '../../components/ui/ImagePicker'
@@ -9,10 +9,10 @@ import { useGarage } from '../../store/AppStore'
 import { saveVehicle } from '../../store/ops'
 import { nowIso, uid } from '../../lib/id'
 import { todayStr } from '../../lib/calc'
-import { optDate, reqNum, str, toNum, toOpt } from './formUtils'
+import { optDate, optNum, reqNum, str, toNum, toOpt, toOptNum } from './formUtils'
 import { cn } from '../../lib/cn'
 
-export const VEHICLE_ICON: Record<VehicleType, LucideIcon> = { Car, Motorcycle: Bike, Scooter: Bike, SUV: CarFront, Truck, Other: Shapes }
+export const VEHICLE_ICON: Record<VehicleType, LucideIcon> = { Car, Motorcycle: Motorbike, Scooter: Motorbike, SUV: CarFront, Truck, Other: Shapes }
 
 const schema = z.object({
   type: z.enum(VEHICLE_TYPES),
@@ -23,6 +23,8 @@ const schema = z.object({
   currentOdometer: reqNum('Odometer reading'),
   purchaseDate: optDate.refine((v) => v === '' || v <= todayStr(), 'Purchase date cannot be in the future'),
   image: z.string().optional(),
+  batteryKwh: optNum.refine((v) => v === '' || Number(v) > 0, 'Battery size must be more than 0'),
+  electricityRate: optNum,
 })
 type Values = z.infer<typeof schema>
 
@@ -40,9 +42,12 @@ export function VehicleForm({ formId, vehicle, onSaved }: { formId: string; vehi
       currentOdometer: str(vehicle?.currentOdometer),
       purchaseDate: vehicle?.purchaseDate ?? '',
       image: vehicle?.image,
+      batteryKwh: str(vehicle?.batteryKwh),
+      electricityRate: str(vehicle?.electricityRate),
     },
   })
   const type = watch('type')
+  const electric = watch('fuelType') === 'Electric'
   const unit = data.settings.distanceUnit
 
   const submit = (v: Values) => {
@@ -58,6 +63,8 @@ export function VehicleForm({ formId, vehicle, onSaved }: { formId: string; vehi
       currentOdometer: toNum(v.currentOdometer),
       purchaseDate: toOpt(v.purchaseDate),
       image: v.image,
+      batteryKwh: v.fuelType === 'Electric' ? toOptNum(v.batteryKwh) : undefined,
+      electricityRate: v.fuelType === 'Electric' ? toOptNum(v.electricityRate) : undefined,
       updatedAt: ts,
     }
     if (update((d) => saveVehicle(d, next))) onSaved(next)
@@ -111,6 +118,16 @@ export function VehicleForm({ formId, vehicle, onSaved }: { formId: string; vehi
         <Field label="Purchase date" optional error={errors.purchaseDate?.message}>
           {(p) => <Input {...p} type="date" max={todayStr()} {...register('purchaseDate')} />}
         </Field>
+        {electric && (
+          <>
+            <Field label="Battery size" optional hint="On the spec sheet. Lets us show energy used in kWh." error={errors.batteryKwh?.message}>
+              {(p) => <Input {...p} inputMode="decimal" suffix="kWh" placeholder="e.g. 3" {...register('batteryKwh')} />}
+            </Field>
+            <Field label="Home electricity rate" optional hint="Per unit (kWh), from your bill. Used to cost home charges." error={errors.electricityRate?.message}>
+              {(p) => <Input {...p} inputMode="decimal" suffix={data.settings.currency} placeholder="e.g. 8" {...register('electricityRate')} />}
+            </Field>
+          </>
+        )}
       </div>
       <Controller control={control} name="image" render={({ field }) => <ImagePicker label="Add a photo" value={field.value} onChange={(v) => setValue('image', v, { shouldDirty: true })} />} />
     </form>

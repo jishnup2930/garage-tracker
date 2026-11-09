@@ -5,6 +5,7 @@ import { Avatar } from './Avatar'
 import { useGarage } from '../../store/AppStore'
 import { navigate, type Page } from '../../lib/router'
 import { cn } from '../../lib/cn'
+import { LogoTile, Wordmark } from './Logo'
 
 /** Graphite "console" sidebar in both themes; lime marks the active page. */
 export function Sidebar({ page }: { page: Page }) {
@@ -20,11 +21,8 @@ export function Sidebar({ page }: { page: Page }) {
       className="on-console sticky top-0 hidden h-dvh shrink-0 flex-col overflow-hidden bg-console text-console-fg lg:flex"
     >
       <div className="flex h-16 items-center gap-2.5 px-5">
-        <svg viewBox="0 0 32 32" className="size-8 shrink-0" aria-hidden>
-          <rect width="32" height="32" rx="9" fill="var(--accent)" />
-          <path d="M7 19l2.2-6.1A2 2 0 0 1 11.1 11.5h9.8a2 2 0 0 1 1.9 1.4L25 19v4a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1h-11v1a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z" fill="#1b1d21" />
-        </svg>
-        {!collapsed && <span className="font-display text-lg font-bold tracking-tight">Garage</span>}
+        <LogoTile />
+        {!collapsed && <Wordmark className="text-console-fg" />}
       </div>
 
       <nav aria-label="Main" className="mt-3 flex-1 space-y-0.5 px-3">

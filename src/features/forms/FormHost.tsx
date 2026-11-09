@@ -55,12 +55,15 @@ export function FormHost() {
   }
 
   const k = form?.kind
+  // Electric vehicles are charged, not refuelled. Based on the vehicle the form opens with.
+  const fuelVid = (rec as { vehicleId?: string } | undefined)?.vehicleId ?? form?.vehicleId ?? (data.vehicles.length === 1 ? data.vehicles[0].id : undefined)
+  const charging = k === 'fuel' && data.vehicles.find((v) => v.id === fuelVid)?.fuelType === 'Electric'
   return (
     <Modal
       open={!!form}
       onClose={closeForm}
       size={k === 'vehicle' || k === 'maintenance' ? 'lg' : 'md'}
-      title={needsVehicle ? 'Add a vehicle first' : k ? TITLES[k][editing ? 1 : 0] : ''}
+      title={needsVehicle ? 'Add a vehicle first' : charging ? (editing ? 'Edit charge' : 'Log a charge') : k ? TITLES[k][editing ? 1 : 0] : ''}
       footer={
         needsVehicle ? (
           <Button variant="ghost" onClick={closeForm}>Cancel</Button>
@@ -75,7 +78,7 @@ export function FormHost() {
               Cancel
             </Button>
             <Button type="submit" form={formId}>
-              {k ? SAVE[k] : 'Save'}
+              {charging ? 'Save charge' : k ? SAVE[k] : 'Save'}
             </Button>
           </>
         )
@@ -98,7 +101,7 @@ export function FormHost() {
       ) : form?.kind === 'maintenance' ? (
         <MaintenanceForm key={form.id ?? 'new'} formId={formId} record={rec as never} vehicleId={form.vehicleId} onSaved={() => done(editing ? 'Maintenance updated' : `Nice work${name ? `, ${name}` : ''}!`, editing ? undefined : 'Your vehicle is taken care of.')} />
       ) : form?.kind === 'fuel' ? (
-        <FuelForm key={form.id ?? 'new'} formId={formId} record={rec as never} vehicleId={form.vehicleId} onSaved={() => done(editing ? 'Refill updated' : 'Refill logged')} />
+        <FuelForm key={form.id ?? 'new'} formId={formId} record={rec as never} vehicleId={form.vehicleId} onSaved={() => done(charging ? (editing ? 'Charge updated' : 'Charge logged') : editing ? 'Refill updated' : 'Refill logged')} />
       ) : form?.kind === 'expense' ? (
         <ExpenseForm key={form.id ?? 'new'} formId={formId} record={rec as never} vehicleId={form.vehicleId} onSaved={() => done(editing ? 'Expense updated' : 'Expense added')} />
       ) : form?.kind === 'reminder' ? (

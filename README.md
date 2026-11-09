@@ -24,7 +24,10 @@ npm test           # unit tests for mileage, reminders, expense totals, storage,
 
 ## How the numbers work
 
-- **Mileage** uses the full-tank method. Between two full fills, distance ÷ all fuel added (including partial fills in between). Nothing is shown until there are two full fills. Electric vehicles use kWh and km/kWh.
+- **Refills** are logged by amount paid (e.g. ₹500). Litres = amount ÷ price per litre; the price is remembered from the last refill.
+- **Mileage** works without full tanks. Each refill's fuel is used up by the next, so mileage = km between the first and latest refill ÷ fuel bought in every refill except the latest. It's labelled an estimate and gets more accurate with each refill. If full-tank refills cover at least half the logged distance, the exact full-tank method is used instead (distance between full fills ÷ all fuel added in between). Needs two refills. Electric vehicles use kWh and km/kWh.
+- **Electric vehicles** log charges by battery level (e.g. 20% → 100%) and odometer; the amount paid is optional (blank for home charging). Range per full charge = km driven ÷ battery % used × 100, where % used = level after one charge − level before the next. This is exact, not an estimate. With the vehicle's battery size (kWh) and home electricity rate set, the app also shows kWh and estimates the cost of home charges. Charges with no known cost are left out of expense totals.
+- **Cost per km** = money spent in those same stretches ÷ km driven. It doesn't depend on litres. A missed (unlogged) refill makes both figures look better than they are.
 - **No double counting.** Fuel and maintenance costs come only from their own logs. Manual expenses can't use the Fuel or Maintenance categories.
 - **Reminders** can have a due date, a due odometer reading, or both. The more urgent condition wins. Logging maintenance with "Schedule the next one" creates the reminder, and logging the same job again completes it.
 - **Insights** come only from the records you've logged.

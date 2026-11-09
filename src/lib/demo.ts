@@ -14,7 +14,7 @@ export function buildDemoData(now = new Date()): Pick<AppData, 'vehicles' | 'mai
   const mk = (v: Omit<Vehicle, 'id' | 'createdAt' | 'updatedAt' | 'demo'>): Vehicle => ({ ...v, id: uid(), demo: true, createdAt: ts, updatedAt: ts })
   const car = mk({ nickname: 'Honda City ZX', type: 'Car', brand: 'Honda', model: 'City ZX', registrationNumber: 'DEMO 01', fuelType: 'Petrol', currentOdometer: 0, purchaseDate: day(1400) })
   const bike = mk({ nickname: 'Royal Enfield Classic 350', type: 'Motorcycle', brand: 'Royal Enfield', model: 'Classic 350', registrationNumber: 'DEMO 02', fuelType: 'Petrol', currentOdometer: 0, purchaseDate: day(900) })
-  const ev = mk({ nickname: 'Ather 450X', type: 'Scooter', brand: 'Ather', model: '450X', fuelType: 'Electric', currentOdometer: 0, purchaseDate: day(400) })
+  const ev = mk({ nickname: 'Ather 450X', type: 'Scooter', brand: 'Ather', model: '450X', fuelType: 'Electric', currentOdometer: 0, purchaseDate: day(400), batteryKwh: 2.9, electricityRate: 8 })
 
   const fuel: FuelEntry[] = []
   const addFuel = (v: Vehicle, startOdo: number, every: number, perDay: number, eff: number, price: number, cap: number) => {
@@ -30,7 +30,19 @@ export function buildDemoData(now = new Date()): Pick<AppData, 'vehicles' | 'mai
   }
   addFuel(car, 31200, 12, 32, 15.5, 103, 40)
   addFuel(bike, 18400, 9, 22, 34, 103, 13)
-  addFuel(ev, 4100, 5, 18, 28, 8, 3)
+  // Home charging logged by battery %: about 100 km per full charge.
+  let odo = 4100
+  let level = 100
+  for (let d = 360; d >= 2; d -= 2 + Math.floor(rand() * 2)) {
+    const km = Math.round(18 * (2 + rand() * 1.5))
+    odo += km
+    const from = Math.max(5, Math.round(level - (km / (95 + rand() * 10)) * 100))
+    const to = rand() > 0.25 ? 100 : 80 + Math.round(rand() * 10)
+    const kwh = Math.round(((to - from) / 100) * 2.9 * 1000) / 1000
+    fuel.push({ id: uid(), vehicleId: ev.id, date: day(d), odometer: odo, fuelType: 'Electric', quantity: kwh, pricePerUnit: 8, totalCost: round2(kwh * 8), batteryFrom: from, batteryTo: to, isFullTank: to === 100, fuelStation: 'Home charger', createdAt: ts, demo: true })
+    level = to
+  }
+  ev.currentOdometer = odo + 36
 
   const m = (v: Vehicle, category: string, daysAgo: number, amount: number, odoBack: number, next: { days?: number; km?: number }, description?: string): Maintenance => ({
     id: uid(), vehicleId: v.id, category, date: day(daysAgo), odometer: v.currentOdometer - odoBack, amount, description, serviceProvider: 'Demo Motors',

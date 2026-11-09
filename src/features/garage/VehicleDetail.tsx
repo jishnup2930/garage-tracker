@@ -52,7 +52,6 @@ export function VehicleDetail({ id }: { id: string }) {
 
   const s = summaries.get(v.id)!
   const dist = trackedDistance(v, data)
-  const eff = f.u.efficiency(v.fuelType)
   const empty = (icon: typeof Wrench, title: string, message: string, kind: 'maintenance' | 'fuel' | 'expense' | 'reminder', label: string) => (
     <EmptyState icon={icon} title={title} message={message} action={<Button onClick={() => openForm({ kind, vehicleId: v.id })}>{label}</Button>} />
   )
@@ -111,7 +110,7 @@ export function VehicleDetail({ id }: { id: string }) {
           <Readouts>
             <Readout label="Odometer" color="green" icon={<Gauge />} value={<span className="tabular">{f.num(v.currentOdometer)}</span>} foot={f.u.distance} />
             <Readout label="Total spent" color="blue" icon={<Wallet />} value={f.money(s.total)} foot={dist ? `${f.moneyExact(s.total / dist)} per ${f.u.distance} over ${f.dist(dist)} tracked` : 'Since you started tracking'} />
-            <Readout label="Fuel" color="orange" icon={<Fuel />} value={f.money(s.fuel)} foot={stats.averageMileage ? `Averaging ${f.num(stats.averageMileage, 1)} ${eff}` : 'Two full fills needed for mileage'} />
+            <Readout label="Fuel" color="orange" icon={<Fuel />} value={f.money(s.fuel)} foot={stats.averageMileage ? `Averaging ${f.mileage(stats.averageMileage, v.fuelType, stats.mode)}${stats.estimated ? ' (estimate)' : ''}` : 'Two refills needed for mileage'} />
             <Readout label="Maintenance" color="purple" icon={<Wrench />} value={f.money(s.maintenance)} foot={`${own.maintenance.length} ${own.maintenance.length === 1 ? 'service' : 'services'} logged`} />
           </Readouts>
           <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
@@ -131,8 +130,8 @@ export function VehicleDetail({ id }: { id: string }) {
                   <dd className="mt-1 font-medium">{s.lastService ? `${s.lastService.category}, ${f.date(s.lastService.date)}` : <span className="font-normal text-faint">None logged yet</span>}</dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-muted">Latest mileage</dt>
-                  <dd className="mt-1 font-medium">{stats.latestMileage ? `${f.num(stats.latestMileage, 1)} ${eff}` : <span className="font-normal text-faint">Not enough full fills yet</span>}</dd>
+                  <dt className="text-xs text-muted">{stats.mode === 'battery' ? 'Latest range' : 'Latest mileage'}</dt>
+                  <dd className="mt-1 font-medium">{stats.latestMileage ? f.mileage(stats.latestMileage, v.fuelType, stats.mode) : <span className="font-normal text-faint">Needs two refills</span>}</dd>
                 </div>
               </dl>
               <Button variant="outline" size="sm" className="mt-5 w-full" icon={<Wrench className="size-3.5" />} onClick={() => openForm({ kind: 'maintenance', vehicleId: v.id })}>
@@ -150,7 +149,7 @@ export function VehicleDetail({ id }: { id: string }) {
       )}
       {tab === 'fuel' && (
         <Panel title="Fuel history" action={own.fuel.length > 0 && <Button size="sm" onClick={() => openForm({ kind: 'fuel', vehicleId: v.id })}>Log a refill</Button>}>
-          {own.fuel.length ? <FuelLog entries={own.fuel} showVehicle={false} /> : empty(Fuel, 'No refills yet', 'Log refills with the odometer reading. After two full fills you will see real mileage.', 'fuel', 'Log a refill')}
+          {own.fuel.length ? <FuelLog entries={own.fuel} showVehicle={false} /> : empty(Fuel, 'No refills yet', 'Log what you paid and the odometer reading. After two refills you will see mileage.', 'fuel', 'Log a refill')}
         </Panel>
       )}
       {tab === 'expenses' && (

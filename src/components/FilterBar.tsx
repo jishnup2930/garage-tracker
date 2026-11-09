@@ -22,7 +22,12 @@ export function useFilters(initial: Partial<Filters> = {}) {
         (!filters.q || text.some((t) => t != null && String(t).toLowerCase().includes(filters.q.toLowerCase()))),
     [filters],
   )
-  return { filters, setFilters, match }
+  /** Vehicle + date only. For calculations that break if refills are removed from the middle by a search. */
+  const matchRange = useMemo(
+    () => (r: { vehicleId: string; date: string }) => (!filters.vehicleId || r.vehicleId === filters.vehicleId) && inRange(r.date, filters.from || undefined, filters.to || undefined),
+    [filters],
+  )
+  return { filters, setFilters, match, matchRange }
 }
 
 const field = 'h-10 rounded-xl border border-line bg-surface px-3 text-sm focus:border-fg focus:outline-none'

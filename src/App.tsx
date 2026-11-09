@@ -52,7 +52,7 @@ export default function App() {
 
   const title = route.page === 'garage' && route.id ? (data.vehicles.find((v) => v.id === route.id)?.nickname ?? 'Vehicle') : pageLabel(route.page)
   useEffect(() => {
-    document.title = `${title} · Garage`
+    document.title = `${title} | Garage Tracker`
     window.scrollTo({ top: 0 })
   }, [title, route.page, route.id])
 

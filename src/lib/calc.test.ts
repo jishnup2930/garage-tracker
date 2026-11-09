@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { FuelEntry, Reminder, Vehicle } from '../types'
-import { alertStage, costLines, evaluateReminder, expenseSeries, mileageSegments, totalOf } from './calc'
+import { alertStage, costLines, evaluateReminder, expenseSeries, fuelStats, mileageSegments, totalOf } from './calc'
 import { parseAppData } from './storage'
 import { emptyData } from './schema'
 
@@ -44,6 +44,70 @@ describe('mileage', () => {
   it('ignores entry order and zero-distance segments', () => {
     const segs = mileageSegments([f(1300, 10, true), f(1000, 10, true), f(1300, 10, true)])
     expect(segs.map((s) => s.mileage)).toEqual([30])
+  })
+})
+
+describe('mileage without full tanks', () => {
+  // ₹500, ₹500, ₹400, ₹500 at ₹100/L: the last refill's fuel isn't used yet, so it isn't counted.
+  const money = [f(10000, 5, false), f(10220, 5, false), f(10450, 4, false), f(10640, 5, false)]
+  it('averages distance over fuel bought before the latest refill', () => {
+    const s = fuelStats(money)
+    expect(s.estimated).toBe(true)
+    expect(s.averageMileage).toBeCloseTo(640 / 14)
+    expect(s.costPerDistance).toBeCloseTo(1400 / 640)
+    expect(s.segments.map((x) => x.mileage)).toEqual([44, 46, 47.5])
+  })
+  it('needs two refills at different readings', () => {
+    expect(fuelStats([f(10000, 5, false)]).averageMileage).toBeNull()
+    expect(fuelStats([f(10000, 5, false), f(10000, 3, false)]).averageMileage).toBeNull()
+  })
+  it('uses exact full-tank figures when they cover most of the distance', () => {
+    const s = fuelStats([f(1000, 30, true), f(1150, 5, false), f(1400, 15, true), f(1450, 3, false)])
+    expect(s.estimated).toBe(false)
+    expect(s.averageMileage).toBe(20)
+  })
+  it('gives the same answer whatever order refills are stored in', () => {
+    expect(fuelStats([...money].reverse()).averageMileage).toBeCloseTo(640 / 14)
+  })
+  it('carries fuel from same-odometer refills into the next gap', () => {
+    const s = fuelStats([f(1000, 5, false), f(1000, 3, false), f(1200, 4, false)])
+    expect(s.segments.map((x) => x.mileage)).toEqual([25])
+  })
+  it('stays exact for up to two partial refills after the last full one', () => {
+    const s = fuelStats([f(1000, 30, true), f(1400, 20, true), f(1500, 5, false), f(1600, 5, false)])
+    expect(s.estimated).toBe(false)
+    expect(s.averageMileage).toBe(20)
+  })
+  it('switches to the estimate once the user stops filling to full', () => {
+    const s = fuelStats([f(1000, 30, true), f(1400, 20, true), f(1500, 5, false), f(1600, 5, false), f(1700, 5, false)])
+    expect(s.estimated).toBe(true)
+    expect(s.averageMileage).toBeCloseTo(700 / 60)
+  })
+  it('falls back to the estimate when full tanks are rare', () => {
+    const s = fuelStats([f(1000, 10, true), f(1100, 2, true), f(1500, 10, false), f(2000, 10, false)])
+    expect(s.estimated).toBe(true)
+    expect(s.averageMileage).toBeCloseTo(1000 / 22)
+  })
+})
+
+describe('electric range from battery %', () => {
+  const c = (odometer: number, from: number, to: number, cost = 0): FuelEntry => ({ ...f(odometer, 0, to === 100, cost), fuelType: 'Electric', batteryFrom: from, batteryTo: to })
+  it('uses the exact charge used between charges', () => {
+    // 100% -> drove 80 km -> 20% left: 80 km on 80% = 100 km per full charge
+    const s = fuelStats([c(1000, 30, 100), c(1080, 20, 100), c(1150, 30, 90)])
+    expect(s.mode).toBe('battery')
+    expect(s.segments.map((x) => x.mileage)).toEqual([100, 100])
+    expect(s.averageMileage).toBeCloseTo(100)
+    expect(s.costPerDistance).toBeNull()
+  })
+  it('works with partial top-ups and costs only paid charges', () => {
+    // 90% -> 50 km -> 40%: 50 km on 50% ; 80% -> 60 km -> 20%: 60 km on 60%
+    const s = fuelStats([c(0, 10, 90, 20), c(50, 40, 80, 0), c(110, 20, 60, 0)])
+    expect(s.averageMileage).toBeCloseTo(100)
+    expect(s.costPerDistance).toBeCloseTo(20 / 50)
+  })
+  it('skips gaps where the battery reading went up without a charge', () => {
+    expect(fuelStats([c(0, 10, 50), c(30, 60, 90)]).mode).not.toBe('battery')
   })
 })
 

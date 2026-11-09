@@ -126,7 +126,7 @@ export function AnalyticsPage() {
                     <td className="py-3 text-right font-semibold tabular">{f.money(r.total)}</td>
                     <td className="py-3 text-right tabular text-muted">{r.dist ? f.dist(r.dist) : '—'}</td>
                     <td className="py-3 text-right tabular">{r.cpk ? f.moneyExact(r.cpk) : '—'}</td>
-                    <td className="py-3 pr-5 text-right tabular sm:pr-6">{r.fs.averageMileage ? `${f.num(r.fs.averageMileage, 1)} ${f.u.efficiency(r.v.fuelType)}` : '—'}</td>
+                    <td className="py-3 pr-5 text-right tabular sm:pr-6">{r.fs.averageMileage ? f.mileage(r.fs.averageMileage, r.v.fuelType, r.fs.mode) : '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -170,14 +170,14 @@ export function AnalyticsPage() {
                   <p className="mb-2 flex items-center gap-2 text-sm font-semibold">
                     <span className="size-2.5 rounded-[3px]" style={{ background: r.color }} />
                     {r.v.nickname}
-                    <span className="font-normal text-muted">({f.u.efficiency(r.v.fuelType)})</span>
+                    <span className="font-normal text-muted">({f.effUnit(r.v.fuelType, r.fs.mode)})</span>
                   </p>
-                  <TrendLine data={r.fs.segments.map((s) => ({ label: f.date(s.date), mileage: Math.round(s.mileage * 10) / 10 }))} x="label" y="mileage" name="Mileage" color={r.color} fmt={(n) => `${f.num(n, 1)} ${f.u.efficiency(r.v.fuelType)}`} tickFmt={(n) => f.num(n)} height={180} />
+                  <TrendLine data={r.fs.segments.map((s) => ({ label: f.date(s.date), mileage: Math.round(s.mileage * 10) / 10 }))} x="label" y="mileage" name="Mileage" color={r.color} fmt={(n) => `${f.num(n, 1)} ${f.effUnit(r.v.fuelType, r.fs.mode)}`} tickFmt={(n) => f.num(n)} height={180} />
                 </div>
               ))}
             </div>
           ) : (
-            <p className="py-10 text-center text-sm text-muted">Mileage trends appear once a vehicle has at least three full fills logged.</p>
+            <p className="py-10 text-center text-sm text-muted">Mileage trends appear once a vehicle has a few more refills logged.</p>
           )}
         </Panel>
       </div>

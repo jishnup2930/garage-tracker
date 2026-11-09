@@ -69,6 +69,10 @@ export interface Vehicle {
   currentOdometer: number
   purchaseDate?: DateStr
   image?: string
+  /** Electric only: battery capacity in kWh, to turn battery % into kWh. */
+  batteryKwh?: number
+  /** Electric only: home electricity price per kWh, to cost home charges. */
+  electricityRate?: number
   demo?: boolean
   createdAt: Timestamp
   updatedAt: Timestamp
@@ -97,8 +101,11 @@ export interface FuelEntry {
   date: DateStr
   odometer: number
   fuelType: FuelType
-  /** Litres, or kWh for electric. */
+  /** Litres, or kWh for electric. 0 for a battery-% charge on a vehicle with no battery size. */
   quantity: number
+  /** Electric charges logged by battery level, 0–100. */
+  batteryFrom?: number
+  batteryTo?: number
   pricePerUnit: number
   totalCost: number
   isFullTank: boolean

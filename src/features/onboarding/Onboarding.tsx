@@ -4,7 +4,6 @@ import { Wrench, Fuel, BellRing, Wallet } from 'lucide-react'
 import { useGarage } from '../../store/AppStore'
 import { Button } from '../../components/ui/Button'
 import { Field, Input } from '../../components/ui/Field'
-import { Odometer } from '../../components/ui/Odometer'
 import { VehicleThumb } from '../../components/VehicleThumb'
 import { Plate } from '../../components/ui/Badge'
 import { VehicleForm } from '../forms/VehicleForm'
@@ -12,6 +11,7 @@ import { loadDemo } from '../../store/ops'
 import { nowIso, uid } from '../../lib/id'
 import { num } from '../../lib/format'
 import type { Vehicle } from '../../types'
+import { LogoTile, Wordmark } from '../../components/layout/Logo'
 
 type Step = 1 | 2 | 3
 
@@ -43,28 +43,16 @@ export function Onboarding() {
     <div className="min-h-dvh lg:grid lg:grid-cols-[minmax(380px,0.9fr)_1.1fr]">
       <aside className="on-console relative flex flex-col justify-between overflow-hidden bg-console px-6 pt-8 pb-10 text-console-fg sm:px-10 lg:sticky lg:top-0 lg:h-dvh lg:py-12">
         <div className="flex items-center gap-2.5">
-          <svg viewBox="0 0 32 32" className="size-8" aria-hidden>
-            <rect width="32" height="32" rx="9" fill="var(--accent)" />
-            <path d="M7 19l2.2-6.1A2 2 0 0 1 11.1 11.5h9.8a2 2 0 0 1 1.9 1.4L25 19v4a1 1 0 0 1-1 1h-1.5a1 1 0 0 1-1-1v-1h-11v1a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1z" fill="#1b1d21" />
-          </svg>
-          <span className="font-display text-lg font-bold">Garage</span>
+          <LogoTile />
+          <Wordmark />
         </div>
-        <div className="mt-10 lg:mt-0">
+        <div className="mt-10 lg:my-auto">
           <AnimatePresence mode="wait">
             <motion.div key={step} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.25 }}>
               <h1 className="font-display text-[40px] leading-[1.02] font-semibold tracking-[-0.03em] text-balance sm:text-[56px]">{copy.h}</h1>
               <p className="mt-4 max-w-[42ch] text-[17px] text-console-muted">{copy.p}</p>
             </motion.div>
           </AnimatePresence>
-        </div>
-        {/* The odometer ticks forward one step as you go. */}
-        <div className="mt-10 hidden items-end justify-between lg:flex">
-          <div>
-            <div className="flex rounded-lg bg-black/40 px-3 py-2 font-display text-[34px] leading-none font-semibold text-console-fg ring-1 ring-white/10">
-              <Odometer value={`00000${step}`} />
-            </div>
-            <p className="mt-2 text-xs text-console-muted">Step {step} of 3</p>
-          </div>
         </div>
       </aside>
 

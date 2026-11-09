@@ -4,27 +4,27 @@ import type { FuelEntry } from '../../types'
 import { useGarage } from '../../store/AppStore'
 import { useUI } from '../../store/ui'
 import { useFormat } from '../../hooks/useFormat'
-import { mileageSegments } from '../../lib/calc'
+import { fuelStats } from '../../lib/calc'
 import { cn } from '../../lib/cn'
 
-/** Refill log. Mileage shows only on full fills that close a valid full-to-full segment. */
+/** Refill log. Mileage shows on the refill that closes each stretch; ≈ marks refill-to-refill estimates. */
 export function FuelLog({ entries, showVehicle = true }: { entries: FuelEntry[]; showVehicle?: boolean }) {
   const { data, vehicleById } = useGarage()
   const { openForm } = useUI()
   const f = useFormat()
   const mileageById = useMemo(() => {
-    const m = new Map<string, number>()
+    const m = new Map<string, string>()
     const byVehicle = new Map<string, FuelEntry[]>()
     for (const e of data.fuel) byVehicle.set(e.vehicleId, [...(byVehicle.get(e.vehicleId) ?? []), e])
     for (const list of byVehicle.values()) {
-      const segs = mileageSegments(list)
-      for (const s of segs) {
-        const e = list.find((x) => x.isFullTank && x.odometer === s.odometer && x.date === s.date)
-        if (e) m.set(e.id, s.mileage)
+      const { segments, estimated, mode } = fuelStats(list)
+      for (const s of segments) {
+        const e = list.find((x) => x.odometer === s.odometer && x.date === s.date)
+        if (e) m.set(e.id, `${estimated ? '≈ ' : ''}${f.mileage(s.mileage, e.fuelType, mode)}`)
       }
     }
     return m
-  }, [data.fuel])
+  }, [data.fuel, f])
   const [count, setCount] = useState(30)
   const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date) || b.odometer - a.odometer)
 
@@ -57,11 +57,11 @@ export function FuelLog({ entries, showVehicle = true }: { entries: FuelEntry[];
                 {showVehicle && <td className="py-2.5">{vehicleById.get(e.vehicleId)?.nickname}</td>}
                 <td className="py-2.5 text-right tabular">{f.num(e.odometer)}</td>
                 <td className="py-2.5 text-right tabular">
-                  {f.num(e.quantity, 2)} {unit}
+                  {e.batteryTo != null ? `${e.batteryFrom}–${e.batteryTo}%` : `${f.num(e.quantity, 2)} ${unit}`}
                 </td>
                 <td className="py-2.5 text-right tabular text-muted">{f.moneyExact(e.pricePerUnit)}</td>
                 <td className="py-2.5 text-right font-semibold tabular">{f.money(e.totalCost)}</td>
-                <td className={cn('py-2.5 pr-5 text-right tabular sm:pr-6', !mileage && 'text-faint')}>{mileage ? `${f.num(mileage, 1)} ${f.u.efficiency(e.fuelType)}` : '—'}</td>
+                <td className={cn('py-2.5 pr-5 text-right tabular sm:pr-6', !mileage && 'text-faint')}>{mileage ?? '—'}</td>
               </tr>
             )
           })}
