@@ -7,7 +7,8 @@ import { motion, useReducedMotion } from 'framer-motion'
 export function Odometer({ value, className }: { value: string; className?: string }) {
   const reduce = useReducedMotion()
   return (
-    <span className={className} aria-label={value} role="text">
+    <span className={className}>
+      <span className="sr-only">{value}</span>
       <span aria-hidden className="tabular inline-flex overflow-hidden leading-none">
         {[...value].map((ch, i) =>
           /\d/.test(ch) ? (

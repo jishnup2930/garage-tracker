@@ -26,8 +26,8 @@ export function Menu({ trigger, items, align = 'right', label, up }: { trigger: 
   const onKey = (e: React.KeyboardEvent) => {
     const els = [...(ref.current?.querySelectorAll<HTMLElement>('[role=menuitem]') ?? [])]
     const i = els.indexOf(document.activeElement as HTMLElement)
-    if (e.key === 'ArrowDown') (e.preventDefault(), els[(i + 1) % els.length]?.focus())
-    if (e.key === 'ArrowUp') (e.preventDefault(), els[(i - 1 + els.length) % els.length]?.focus())
+    if (e.key === 'ArrowDown') { e.preventDefault(); els[(i + 1) % els.length]?.focus() }
+    if (e.key === 'ArrowUp') { e.preventDefault(); els[(i - 1 + els.length) % els.length]?.focus() }
     if (e.key === 'Escape') {
       e.stopPropagation()
       setOpen(false)

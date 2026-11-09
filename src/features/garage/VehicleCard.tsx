@@ -1,4 +1,4 @@
-import { MoreVertical, Pencil, Wrench, Fuel, Wallet, Gauge } from 'lucide-react'
+import { MoreVertical, Pencil, Wrench, Fuel, Wallet, Gauge, FileText, ListChecks } from 'lucide-react'
 import { motion } from 'framer-motion'
 import type { Vehicle } from '../../types'
 import type { VehicleSummary } from './summary'
@@ -36,6 +36,9 @@ export function VehicleCard({ vehicle: v, summary: s }: { vehicle: Vehicle; summ
                 { label: 'Log a refill', icon: <Fuel className={i} />, onSelect: () => openForm({ kind: 'fuel', vehicleId: v.id }) },
                 { label: 'Log maintenance', icon: <Wrench className={i} />, onSelect: () => openForm({ kind: 'maintenance', vehicleId: v.id }) },
                 { label: 'Add an expense', icon: <Wallet className={i} />, onSelect: () => openForm({ kind: 'expense', vehicleId: v.id }) },
+                { label: 'Update km', icon: <Gauge className={i} />, onSelect: () => openForm({ kind: 'odometer', vehicleId: v.id }) },
+                { label: 'Add papers', icon: <FileText className={i} />, onSelect: () => openForm({ kind: 'paper', vehicleId: v.id }) },
+                { label: 'Usual service reminders', icon: <ListChecks className={i} />, onSelect: () => openForm({ kind: 'schedule', vehicleId: v.id }) },
                 { label: 'Edit vehicle', icon: <Pencil className={i} />, onSelect: () => openForm({ kind: 'vehicle', id: v.id }) },
               ]}
               trigger={(p) => (

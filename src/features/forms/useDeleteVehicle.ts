@@ -14,7 +14,7 @@ export function useDeleteVehicle() {
     const v = data.vehicles.find((x) => x.id === id)
     if (!v) return false
     const c = relatedCounts(data, id)
-    const parts = [plural(c.maintenance, 'maintenance record'), plural(c.fuel, 'refill'), plural(c.expenses, 'expense'), plural(c.reminders, 'reminder')]
+    const parts = [plural(c.maintenance, 'maintenance record'), plural(c.fuel, 'refill'), plural(c.expenses, 'expense'), plural(c.reminders, 'reminder'), plural(c.papers, 'paper')]
     const ok = await confirm({
       title: `Delete ${v.nickname}?`,
       message: createElement('p', null, `This also deletes everything linked to it: ${parts.join(', ')}. Export a backup first from Settings if you might want them later. This cannot be undone.`),

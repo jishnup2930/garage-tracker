@@ -56,9 +56,9 @@ export function SearchDialog() {
   }, [searchOpen])
 
   const onKey = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') (e.preventDefault(), setActive((a) => Math.min(a + 1, hits.length - 1)))
-    if (e.key === 'ArrowUp') (e.preventDefault(), setActive((a) => Math.max(a - 1, 0)))
-    if (e.key === 'Enter' && hits[active]) (e.preventDefault(), hits[active].go())
+    if (e.key === 'ArrowDown') { e.preventDefault(); setActive((a) => Math.min(a + 1, hits.length - 1)) }
+    if (e.key === 'ArrowUp') { e.preventDefault(); setActive((a) => Math.max(a - 1, 0)) }
+    if (e.key === 'Enter' && hits[active]) { e.preventDefault(); hits[active].go() }
   }
 
   return (

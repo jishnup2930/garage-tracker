@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { ArrowLeft, Pencil, Trash2, Wrench, Fuel, Wallet, BellRing, Gauge, CalendarDays } from 'lucide-react'
+import { ArrowLeft, Pencil, Trash2, Wrench, Fuel, Wallet, BellRing, Gauge, CalendarDays, FileText } from 'lucide-react'
 import { useGarage } from '../../store/AppStore'
 import { useUI } from '../../store/ui'
 import { useFormat } from '../../hooks/useFormat'
@@ -9,20 +9,21 @@ import { Plate } from '../../components/ui/Badge'
 import { Segmented } from '../../components/ui/Field'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { VehicleThumb } from '../../components/VehicleThumb'
-import { ExpenseBars } from '../../components/charts/ExpenseBars'
 import { QuickAdd } from '../../components/layout/QuickAdd'
 import { MaintenanceLog } from '../records/MaintenanceLog'
 import { FuelLog } from '../records/FuelLog'
 import { CostList } from '../records/CostList'
 import { ReminderList } from '../records/ReminderList'
+import { PaperList } from '../records/PaperList'
 import { useVehicleSummaries } from './summary'
 import { NextDue } from './NextDue'
 import { useDeleteVehicle } from '../forms/useDeleteVehicle'
 import { fuelStats, trackedDistance } from '../../lib/calc'
 import { navigate } from '../../lib/router'
 import type { ChartRange } from '../../types'
+import { ExpenseBars } from '../../components/charts'
 
-type Tab = 'overview' | 'maintenance' | 'fuel' | 'expenses' | 'reminders'
+type Tab = 'overview' | 'maintenance' | 'fuel' | 'expenses' | 'reminders' | 'papers'
 
 export function VehicleDetail({ id }: { id: string }) {
   const { data, lines, reminders } = useGarage()
@@ -40,8 +41,9 @@ export function VehicleDetail({ id }: { id: string }) {
       fuel: data.fuel.filter((x) => x.vehicleId === id),
       lines: lines.filter((l) => l.vehicleId === id),
       reminders: reminders.filter((r) => r.reminder.vehicleId === id),
+      papers: data.papers.filter((p) => p.vehicleId === id),
     }),
-    [data.maintenance, data.fuel, lines, reminders, id],
+    [data.maintenance, data.fuel, data.papers, lines, reminders, id],
   )
   const stats = useMemo(() => fuelStats(own.fuel), [own.fuel])
 
@@ -52,7 +54,7 @@ export function VehicleDetail({ id }: { id: string }) {
 
   const s = summaries.get(v.id)!
   const dist = trackedDistance(v, data)
-  const empty = (icon: typeof Wrench, title: string, message: string, kind: 'maintenance' | 'fuel' | 'expense' | 'reminder', label: string) => (
+  const empty = (icon: typeof Wrench, title: string, message: string, kind: 'maintenance' | 'fuel' | 'expense' | 'reminder' | 'paper', label: string) => (
     <EmptyState icon={icon} title={title} message={message} action={<Button onClick={() => openForm({ kind, vehicleId: v.id })}>{label}</Button>} />
   )
 
@@ -101,6 +103,7 @@ export function VehicleDetail({ id }: { id: string }) {
             { value: 'fuel', label: `Fuel (${own.fuel.length})` },
             { value: 'expenses', label: `Expenses (${own.lines.length})` },
             { value: 'reminders', label: `Reminders (${own.reminders.filter((r) => r.reminder.status === 'active').length})` },
+            { value: 'papers', label: `Papers (${own.papers.length})` },
           ]}
         />
       </div>
@@ -158,8 +161,21 @@ export function VehicleDetail({ id }: { id: string }) {
         </Panel>
       )}
       {tab === 'reminders' && (
-        <Panel title="Reminders" action={own.reminders.length > 0 && <Button size="sm" onClick={() => openForm({ kind: 'reminder', vehicleId: v.id })}>New reminder</Button>}>
+        <Panel
+          title="Reminders"
+          action={
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={() => openForm({ kind: 'schedule', vehicleId: v.id })}>Usual service reminders</Button>
+              {own.reminders.length > 0 && <Button size="sm" onClick={() => openForm({ kind: 'reminder', vehicleId: v.id })}>New reminder</Button>}
+            </div>
+          }
+        >
           {own.reminders.length ? <ReminderList items={own.reminders} showVehicle={false} /> : empty(BellRing, 'No reminders yet', 'Insurance, registration, pollution certificate, or anything else with a due date.', 'reminder', 'New reminder')}
+        </Panel>
+      )}
+      {tab === 'papers' && (
+        <Panel title="Papers" action={own.papers.length > 0 && <Button size="sm" onClick={() => openForm({ kind: 'paper', vehicleId: v.id })}>Add papers</Button>}>
+          {own.papers.length ? <PaperList papers={own.papers} /> : empty(FileText, 'No papers saved yet', 'Save insurance, pollution certificate and RC expiry dates. We remind you before each one runs out.', 'paper', 'Add papers')}
         </Panel>
       )}
     </>

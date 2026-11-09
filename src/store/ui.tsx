@@ -1,8 +1,9 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Modal } from '../components/ui/Modal'
 import { Button } from '../components/ui/Button'
+import { useGarage } from './AppStore'
 
-export type FormKind = 'vehicle' | 'maintenance' | 'fuel' | 'expense' | 'reminder'
+export type FormKind = 'vehicle' | 'maintenance' | 'fuel' | 'expense' | 'reminder' | 'paper' | 'odometer' | 'schedule'
 export interface FormSpec {
   kind: FormKind
   /** Record to edit; omitted for new. */
@@ -46,7 +47,17 @@ export function UIProvider({ children }: { children: ReactNode }) {
     setDialog(null)
   }
 
-  const value = useMemo<UI>(() => ({ form, openForm: setForm, closeForm: () => setForm(null), confirm, searchOpen, setSearchOpen }), [form, confirm, searchOpen])
+  const { data } = useGarage()
+  const dataRef = useRef(data)
+  dataRef.current = data
+  // A reminder that tracks a paper is edited through the paper, wherever it's opened from,
+  // so the reminder's date and vehicle can't drift away from the paper's.
+  const openForm = useCallback((f: FormSpec) => {
+    const d = dataRef.current
+    const paperId = f.kind === 'reminder' && f.id ? d.reminders.find((r) => r.id === f.id)?.paperId : undefined
+    setForm(paperId && d.papers.some((p) => p.id === paperId) ? { kind: 'paper', id: paperId } : f)
+  }, [])
+  const value = useMemo<UI>(() => ({ form, openForm, closeForm: () => setForm(null), confirm, searchOpen, setSearchOpen }), [form, openForm, confirm, searchOpen])
   return (
     <Ctx.Provider value={value}>
       {children}

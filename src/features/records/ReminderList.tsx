@@ -1,4 +1,6 @@
-import { Check, Clock, Pencil, RotateCcw, Trash2, MoreHorizontal } from 'lucide-react'
+import { Check, Clock, Pencil, RotateCcw, Trash2, MoreHorizontal, CalendarPlus } from 'lucide-react'
+import { googleCalendarUrl, icsFor, type CalendarEvent } from '../../lib/calendar'
+import { downloadFile } from '../../lib/storage'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { EvaluatedReminder } from '../../store/AppStore'
 import { useGarage } from '../../store/AppStore'
@@ -24,6 +26,16 @@ export function ReminderList({ items, showVehicle = true }: { items: EvaluatedRe
   const remove = async (id: string) => {
     if (await confirm({ title: 'Delete this reminder?', message: 'You will stop getting alerts for it. This cannot be undone.', confirmLabel: 'Delete', danger: true }))
       update((d) => deleteReminder(d, id)) && toast.success('Reminder deleted')
+  }
+
+  // Calendar apps alert even when this app is closed, which the browser alone can't do.
+  const calendarItems = (r: EvaluatedReminder['reminder'], who?: string) => {
+    if (!r.dueDate || r.status !== 'active') return []
+    const ev: CalendarEvent = { uid: r.id, title: `${r.title}${who ? `, ${who}` : ''}`, description: `Due ${f.date(r.dueDate)}. From Garage Tracker.`, date: r.dueDate, leadDays: r.leadTime }
+    return [
+      { label: 'Add to Google Calendar', icon: <CalendarPlus className={i} />, onSelect: () => window.open(googleCalendarUrl(ev), '_blank', 'noopener') },
+      { label: 'Add to phone calendar', icon: <CalendarPlus className={i} />, onSelect: () => (downloadFile(`${r.title.replace(/[^\w]+/g, '-')}.ics`, icsFor(ev), 'text/calendar'), toast.success('Calendar file saved', 'Open it to add the event, with an alert, to your calendar.')) },
+    ]
   }
 
   return (
@@ -65,6 +77,7 @@ export function ReminderList({ items, showVehicle = true }: { items: EvaluatedRe
                       { label: 'Snooze 1 week', icon: <Clock className={i} />, onSelect: () => a.snooze(r.id, 7) },
                     ]
                   : []),
+                ...calendarItems(r, vehicle?.nickname),
                 { label: 'Edit', icon: <Pencil className={i} />, onSelect: () => openForm({ kind: 'reminder', id: r.id }) },
                 { label: 'Delete', icon: <Trash2 className="size-4" />, danger: true, onSelect: () => remove(r.id) },
               ]}

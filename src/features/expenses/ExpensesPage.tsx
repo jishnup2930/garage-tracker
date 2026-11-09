@@ -8,15 +8,12 @@ import { Button } from '../../components/ui/Button'
 import { Select } from '../../components/ui/Field'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { FilterBar, useFilters } from '../../components/FilterBar'
-import { ExpenseBars } from '../../components/charts/ExpenseBars'
-import { Donut } from '../../components/charts/Donut'
-import { SimpleBars } from '../../components/charts/Lines'
-import { PairBars } from '../../components/charts/PairBars'
 import { CAT_COLOR, vehicleColor } from '../../components/charts/theme'
 import { CostList } from '../records/CostList'
 import { useExpenseAggregates } from './useExpenseData'
 import { insights, monthTotal, monthsSpanned, totalOf, type ChartCategory } from '../../lib/calc'
 import { EXPENSE_CATEGORIES } from '../../types'
+import { Donut, ExpenseBars, PairBars, SimpleBars } from '../../components/charts'
 
 export function ExpensesPage() {
   const { data, lines } = useGarage()

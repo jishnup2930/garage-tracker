@@ -82,7 +82,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('storage', onStorage)
   }, [])
 
-  const lines = useMemo(() => costLines(data), [data.fuel, data.maintenance, data.expenses])
+  const { fuel, maintenance, expenses } = data
+  const lines = useMemo(() => costLines({ fuel, maintenance, expenses }), [fuel, maintenance, expenses])
   const vehicleById = useMemo(() => new Map(data.vehicles.map((v) => [v.id, v])), [data.vehicles])
   const reminders = useMemo(
     () =>

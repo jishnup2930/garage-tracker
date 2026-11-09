@@ -61,6 +61,8 @@ export function VehicleForm({ formId, vehicle, onSaved }: { formId: string; vehi
       registrationNumber: toOpt(v.registrationNumber)?.toUpperCase(),
       fuelType: v.fuelType,
       currentOdometer: toNum(v.currentOdometer),
+      // A new or corrected reading counts as a reading taken today.
+      odometerAt: !vehicle || vehicle.currentOdometer !== toNum(v.currentOdometer) ? todayStr() : vehicle.odometerAt,
       purchaseDate: toOpt(v.purchaseDate),
       image: v.image,
       batteryKwh: v.fuelType === 'Electric' ? toOptNum(v.batteryKwh) : undefined,

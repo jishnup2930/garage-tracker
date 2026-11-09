@@ -10,7 +10,6 @@ import { Segmented } from '../../components/ui/Field'
 import { Button } from '../../components/ui/Button'
 import { StatusBadge } from '../../components/ui/Badge'
 import { EmptyState } from '../../components/ui/EmptyState'
-import { ExpenseBars } from '../../components/charts/ExpenseBars'
 import { VehicleCard } from '../garage/VehicleCard'
 import { useVehicleSummaries } from '../garage/summary'
 import { dueSummary } from '../garage/NextDue'
@@ -18,6 +17,8 @@ import { greetingWord } from '../../lib/format'
 import { insights, monthTotal } from '../../lib/calc'
 import type { ChartRange, CostLine } from '../../types'
 import { cn } from '../../lib/cn'
+import { Suggestions } from './Suggestions'
+import { ExpenseBars } from '../../components/charts'
 
 export function DashboardPage() {
   const { data, update, lines, reminders, vehicleById } = useGarage()
@@ -55,6 +56,8 @@ export function DashboardPage() {
         </motion.h1>
         <p className="mt-1 max-w-[62ch] text-[15px] text-muted sm:text-base">{status}</p>
       </header>
+
+      <Suggestions />
 
       <Readouts>
         <Readout label="Vehicles" color="green" icon={<Car />} value={<Odometer value={String(data.vehicles.length)} />} foot={data.vehicles.length ? `${f.dist(data.vehicles.reduce((a, v) => a + v.currentOdometer, 0))} on the clocks` : 'None added yet'} />

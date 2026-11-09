@@ -5,12 +5,15 @@ import { Button } from '../../components/ui/Button'
 import { useUI, type FormKind } from '../../store/ui'
 import { useGarage } from '../../store/AppStore'
 import { useToast } from '../../components/ui/Toast'
-import { deleteExpense, deleteFuel, deleteMaintenance, deleteReminder } from '../../store/ops'
+import { deleteExpense, deleteFuel, deleteMaintenance, deletePaper, deleteReminder } from '../../store/ops'
 import { VehicleForm } from './VehicleForm'
 import { MaintenanceForm } from './MaintenanceForm'
 import { FuelForm } from './FuelForm'
 import { ExpenseForm } from './ExpenseForm'
 import { ReminderForm } from './ReminderForm'
+import { PaperForm } from './PaperForm'
+import { OdometerForm } from './OdometerForm'
+import { ScheduleForm } from './ScheduleForm'
 import { useDeleteVehicle } from './useDeleteVehicle'
 
 const TITLES: Record<FormKind, [string, string]> = {
@@ -19,8 +22,11 @@ const TITLES: Record<FormKind, [string, string]> = {
   fuel: ['Log a refill', 'Edit refill'],
   expense: ['Add an expense', 'Edit expense'],
   reminder: ['New reminder', 'Edit reminder'],
+  paper: ['Add vehicle papers', 'Edit papers'],
+  odometer: ['Update km', 'Update km'],
+  schedule: ['Usual service reminders', 'Usual service reminders'],
 }
-const SAVE: Record<FormKind, string> = { vehicle: 'Save vehicle', maintenance: 'Save maintenance', fuel: 'Save refill', expense: 'Save expense', reminder: 'Save reminder' }
+const SAVE: Record<FormKind, string> = { vehicle: 'Save vehicle', maintenance: 'Save maintenance', fuel: 'Save refill', expense: 'Save expense', reminder: 'Save reminder', paper: 'Save papers', odometer: 'Save reading', schedule: 'Add reminders' }
 
 /** One modal that hosts every add/edit form, so any screen can open any form. */
 export function FormHost() {
@@ -33,7 +39,7 @@ export function FormHost() {
 
   const needsVehicle = form && form.kind !== 'vehicle' && data.vehicles.length === 0
   const rec = form?.id
-    ? { vehicle: data.vehicles, maintenance: data.maintenance, fuel: data.fuel, expense: data.expenses, reminder: data.reminders }[form.kind].find((x) => x.id === form.id)
+    ? ({ vehicle: data.vehicles, maintenance: data.maintenance, fuel: data.fuel, expense: data.expenses, reminder: data.reminders, paper: data.papers, odometer: [], schedule: [] } as Record<FormKind, { id: string }[]>)[form.kind].find((x) => x.id === form.id)
     : undefined
   const editing = !!rec
 
@@ -50,7 +56,7 @@ export function FormHost() {
     }
     const ok = await confirm({ title: 'Delete this record?', message: 'It will be removed from your history and totals. This cannot be undone.', confirmLabel: 'Delete', danger: true })
     if (!ok) return
-    const fn = { maintenance: deleteMaintenance, fuel: deleteFuel, expense: deleteExpense, reminder: deleteReminder }[form.kind]
+    const fn = { maintenance: deleteMaintenance, fuel: deleteFuel, expense: deleteExpense, reminder: deleteReminder, paper: deletePaper }[form.kind as 'maintenance']
     if (update((d) => fn(d, rec.id))) done('Deleted')
   }
 
@@ -75,7 +81,7 @@ export function FormHost() {
               </Button>
             )}
             <Button variant="ghost" onClick={closeForm}>
-              Cancel
+              {k === 'schedule' ? 'Not now' : 'Cancel'}
             </Button>
             <Button type="submit" form={formId}>
               {charging ? 'Save charge' : k ? SAVE[k] : 'Save'}
@@ -96,7 +102,11 @@ export function FormHost() {
           key={form.id ?? 'new'}
           formId={formId}
           vehicle={rec as never}
-          onSaved={(v) => done(editing ? 'Vehicle updated' : `${v.nickname} is in your garage`, editing ? undefined : 'Log maintenance or a refill whenever you are ready.')}
+          onSaved={(v) => {
+            if (editing) return done('Vehicle updated')
+            toast.success(`${v.nickname} is in your garage`)
+            openForm({ kind: 'schedule', vehicleId: v.id }) // offer the usual service reminders straight away
+          }}
         />
       ) : form?.kind === 'maintenance' ? (
         <MaintenanceForm key={form.id ?? 'new'} formId={formId} record={rec as never} vehicleId={form.vehicleId} onSaved={() => done(editing ? 'Maintenance updated' : `Nice work${name ? `, ${name}` : ''}!`, editing ? undefined : 'Your vehicle is taken care of.')} />
@@ -106,6 +116,12 @@ export function FormHost() {
         <ExpenseForm key={form.id ?? 'new'} formId={formId} record={rec as never} vehicleId={form.vehicleId} onSaved={() => done(editing ? 'Expense updated' : 'Expense added')} />
       ) : form?.kind === 'reminder' ? (
         <ReminderForm key={form.id ?? 'new'} formId={formId} record={rec as never} vehicleId={form.vehicleId} onSaved={() => done(editing ? 'Reminder updated' : 'Reminder set', editing ? undefined : "We'll give you a heads-up when it's close.")} />
+      ) : form?.kind === 'paper' ? (
+        <PaperForm key={form.id ?? 'new'} formId={formId} record={rec as never} vehicleId={form.vehicleId} onSaved={() => done(editing ? 'Papers updated' : 'Papers saved', editing ? undefined : "We'll remind you before they expire.")} />
+      ) : form?.kind === 'odometer' ? (
+        <OdometerForm key={form.vehicleId ?? 'any'} formId={formId} vehicleId={form.vehicleId} onSaved={() => done('Reading saved')} />
+      ) : form?.kind === 'schedule' ? (
+        <ScheduleForm key={form.vehicleId ?? 'any'} formId={formId} vehicleId={form.vehicleId} onSaved={(n) => done(n ? `${n} ${n === 1 ? 'reminder' : 'reminders'} added` : 'Nothing new to add')} />
       ) : null}
     </Modal>
   )

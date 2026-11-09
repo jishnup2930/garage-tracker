@@ -5,15 +5,13 @@ import { useFormat } from '../../hooks/useFormat'
 import { PageHeader, Panel, Readout, Readouts } from '../../components/ui/Panel'
 import { Button } from '../../components/ui/Button'
 import { EmptyState } from '../../components/ui/EmptyState'
-import { ExpenseBars } from '../../components/charts/ExpenseBars'
-import { SimpleBars, TrendLine } from '../../components/charts/Lines'
 import { CAT_COLOR, vehicleColor } from '../../components/charts/theme'
-import { Donut } from '../../components/charts/Donut'
 import { useExpenseAggregates } from '../expenses/useExpenseData'
 import { fuelStats, sum, totalOf, trackedDistance, todayStr, type ChartCategory } from '../../lib/calc'
 import { toCsv } from '../../lib/csv'
 import { downloadFile } from '../../lib/storage'
 import { useToast } from '../../components/ui/Toast'
+import { Donut, ExpenseBars, SimpleBars, TrendLine } from '../../components/charts'
 
 export function AnalyticsPage() {
   const { data, lines, vehicleById } = useGarage()

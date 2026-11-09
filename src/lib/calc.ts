@@ -322,7 +322,7 @@ export function insights(lines: CostLine[], vehicles: Vehicle[], fmt: (n: number
 
   const yearLines = lines.filter((l) => l.date.startsWith(year))
   const perVehicle = new Map<string, number>()
-  for (const l of yearLines.filter((l) => l.category !== 'Fuel'))
+  for (const l of yearLines.filter((x) => x.category !== 'Fuel'))
     perVehicle.set(l.vehicleId, (perVehicle.get(l.vehicleId) ?? 0) + l.amount)
   if (perVehicle.size >= 2) {
     const [top] = [...perVehicle.entries()].sort((a, b) => b[1] - a[1])

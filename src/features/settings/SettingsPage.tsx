@@ -1,5 +1,5 @@
 import { useRef, useState, type ReactNode } from 'react'
-import { Download, Upload, RotateCcw, Sparkles, Trash2, X, Sun, Moon, Monitor } from 'lucide-react'
+import { Download, Upload, RotateCcw, Sparkles, Trash2, X, Sun, Moon, Monitor, Smartphone } from 'lucide-react'
 import { useGarage } from '../../store/AppStore'
 import { useUI } from '../../store/ui'
 import { useToast } from '../../components/ui/Toast'
@@ -7,16 +7,17 @@ import { PageHeader } from '../../components/ui/Panel'
 import { Button } from '../../components/ui/Button'
 import { Field, Input, Segmented, Select, Toggle } from '../../components/ui/Field'
 import { ImagePicker } from '../../components/ui/ImagePicker'
-import { CURRENCIES } from '../../lib/format'
-import { buildBackup, clearData, downloadFile, parseAppData, storageUsageBytes } from '../../lib/storage'
+import { CURRENCIES, fmtDate } from '../../lib/format'
+import { clearData, parseAppData, storageUsageBytes } from '../../lib/storage'
 import { emptyData } from '../../lib/schema'
 import { clearDemo, hasDemo, loadDemo } from '../../store/ops'
-import { todayStr } from '../../lib/calc'
 import { LEAD_TIMES, type DateFormat, type Settings, type ThemePref } from '../../types'
 import { leadLabel } from '../forms/ReminderForm'
 import { browserNotificationsSupported } from '../../hooks/useReminderEngine'
 import { requestBrowserNotifications } from '../../components/layout/NotificationCenter'
 import { navigate } from '../../lib/router'
+import { useBackup } from './useBackup'
+import { useInstall } from '../../lib/install'
 
 function Section({ title, description, children }: { title: string; description?: string; children: ReactNode }) {
   return (
@@ -55,10 +56,8 @@ export function SettingsPage() {
     if (!ok) toast.error('Browser alerts are blocked', 'Allow notifications for this site in your browser settings, then try again.')
   }
 
-  const exportAll = () => {
-    downloadFile(`garage-backup-${todayStr()}.json`, buildBackup(data), 'application/json')
-    toast.success('Backup downloaded', 'Keep it somewhere safe. You can restore it here any time.')
-  }
+  const exportAll = useBackup()
+  const install = useInstall()
 
   const importFile = async (file?: File) => {
     if (fileRef.current) fileRef.current.value = ''
@@ -68,11 +67,13 @@ export function SettingsPage() {
       const next = parseAppData(JSON.parse(await file.text()))
       const ok = await confirm({
         title: 'Restore this backup?',
-        message: `It contains ${next.vehicles.length} vehicles, ${next.maintenance.length} maintenance records, ${next.fuel.length} refills and ${next.expenses.length} expenses. Everything currently in the app will be replaced.`,
+        message: `It contains ${next.vehicles.length} vehicles, ${next.maintenance.length} maintenance records, ${next.fuel.length} refills, ${next.expenses.length} expenses and ${next.papers.length} papers. Everything currently in the app will be replaced.`,
         confirmLabel: 'Replace and restore',
         danger: true,
       })
-      if (ok && replace({ ...next, settings: { ...next.settings, onboarded: true } })) toast.success('Backup restored')
+      // Keep the newer "last backup" date: restoring an old file shouldn't make the app ask for a backup again.
+      const lastBackupAt = [next.settings.lastBackupAt, data.settings.lastBackupAt].filter(Boolean).sort().pop()
+      if (ok && replace({ ...next, settings: { ...next.settings, onboarded: true, lastBackupAt } })) toast.success('Backup restored')
     } catch (e) {
       toast.error('Could not restore backup', e instanceof SyntaxError ? 'That file is not valid JSON.' : (e as Error).message)
     }
@@ -193,7 +194,17 @@ export function SettingsPage() {
           )}
         </Section>
 
-        <Section title="Your data" description={`About ${kb.toLocaleString()} KB used in this browser. Back up regularly: clearing browser data deletes it.`}>
+        <Section title="Install the app" description="Opens full-screen from your home screen, works offline, and makes the browser less likely to clear your data.">
+          {install.installed ? (
+            <p className="text-sm text-muted">Installed on this device.</p>
+          ) : install.canPrompt ? (
+            <Button variant="outline" icon={<Smartphone className="size-4" />} onClick={install.prompt}>Install Garage Tracker</Button>
+          ) : (
+            <p className="text-sm text-muted">{install.ios ? 'In Safari, tap the Share button, then "Add to Home Screen".' : 'Use your browser menu and choose "Install app" or "Add to Home screen".'}</p>
+          )}
+        </Section>
+
+        <Section title="Your data" description={`About ${kb.toLocaleString()} KB used in this browser. Last backup: ${data.settings.lastBackupAt ? fmtDate(data.settings.lastBackupAt.slice(0, 10), data.settings) : 'never'}. Back up regularly: clearing browser data deletes it.`}>
           <div className="flex flex-wrap gap-2">
             <Button variant="dark" icon={<Download className="size-4" />} onClick={exportAll}>
               Download backup

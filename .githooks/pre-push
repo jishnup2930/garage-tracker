@@ -1,0 +1,8 @@
+#!/bin/sh
+# Runs before every `git push`: lint, unit tests, then the browser tests against a production build.
+# Skip in an emergency with `git push --no-verify` (CI still runs everything before deploying).
+set -e
+echo "pre-push: lint, unit tests and browser tests..."
+npm run lint
+npm test --silent
+npm run test:e2e

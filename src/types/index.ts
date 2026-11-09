@@ -58,6 +58,24 @@ export type ReminderCategory = (typeof REMINDER_CATEGORIES)[number]
 
 export const LEAD_TIMES = [30, 15, 7, 3, 1, 0] as const
 
+/** Vehicle papers tracked by expiry date (details only, no scans). */
+export const PAPER_TYPES = ['Insurance', 'Pollution certificate (PUC)', 'Registration (RC)', 'Road tax', 'Fitness certificate', 'Permit', 'Other'] as const
+export type PaperType = (typeof PAPER_TYPES)[number]
+
+export interface Paper {
+  id: ID
+  vehicleId: ID
+  type: PaperType
+  /** Policy, certificate or registration number. */
+  number?: string
+  /** Insurer or issuing office. */
+  provider?: string
+  expiryDate: DateStr
+  notes?: string
+  demo?: boolean
+  createdAt: Timestamp
+}
+
 export interface Vehicle {
   id: ID
   nickname: string
@@ -73,6 +91,8 @@ export interface Vehicle {
   batteryKwh?: number
   /** Electric only: home electricity price per kWh, to cost home charges. */
   electricityRate?: number
+  /** Date of the latest odometer reading, so we can nudge when it's stale. */
+  odometerAt?: DateStr
   demo?: boolean
   createdAt: Timestamp
   updatedAt: Timestamp
@@ -145,6 +165,8 @@ export interface Reminder {
   lastNotifiedAt?: Timestamp
   /** Maintenance record that scheduled this reminder, if any. */
   maintenanceId?: ID
+  /** Paper whose expiry this reminder tracks, if any. */
+  paperId?: ID
   notes?: string
   demo?: boolean
   createdAt: Timestamp
@@ -183,6 +205,8 @@ export interface Settings {
   sidebarCollapsed: boolean
   dashboardRange: ChartRange
   onboarded: boolean
+  /** When a backup was last downloaded. */
+  lastBackupAt?: Timestamp
 }
 
 export type ChartRange = '7d' | '30d' | '6m' | '12m'
@@ -196,6 +220,7 @@ export interface AppData {
   fuel: FuelEntry[]
   expenses: Expense[]
   reminders: Reminder[]
+  papers: Paper[]
   notifications: AppNotification[]
   customMaintenanceCategories: string[]
 }

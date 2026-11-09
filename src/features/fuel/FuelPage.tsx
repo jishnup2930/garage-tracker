@@ -8,9 +8,9 @@ import { PageHeader, Panel, Readout, Readouts } from '../../components/ui/Panel'
 import { Button } from '../../components/ui/Button'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { FilterBar, useFilters } from '../../components/FilterBar'
-import { TrendLine, SimpleBars } from '../../components/charts/Lines'
 import { FuelLog } from '../records/FuelLog'
 import { fuelStats, monthKey, sum, todayStr } from '../../lib/calc'
+import { SimpleBars, TrendLine } from '../../components/charts'
 
 /** How much to trust the average: full tanks are exact, refill-to-refill gets better with more refills. */
 export function mileageBasis(s: { estimated: boolean; refills: number; mode: string }) {

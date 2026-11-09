@@ -70,6 +70,7 @@ export function useReminderEngine() {
     if (ok && wantBrowser) {
       for (const { n } of fresh.slice(0, 3)) {
         try {
+          // oxlint-disable-next-line no-new -- showing the notification is the side effect we want
           new Notification(n.title, { body: n.message, tag: `${n.reminderId}-${n.type}`, icon: './favicon.svg' })
         } catch {
           /* Some mobile browsers only allow notifications from a service worker; the in-app centre still has it. */

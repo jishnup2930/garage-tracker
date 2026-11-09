@@ -109,23 +109,24 @@ export function FuelForm({ formId, record, vehicleId, onSaved }: { formId: strin
     setPriceOpen(!p)
     setValue('isFullTank', lastFull(v.id))
     // Only when the vehicle changes, so a typed price is not overwritten.
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- runs on vehicle change only, by design
   }, [vid])
 
   const submit = (v: Values) => {
     const odo = toNum(v.odometer)
-    let total: number, price: number, quantity: number, isFullTank = v.isFullTank
+    let total: number, unitPrice: number, quantity: number, isFullTank = v.isFullTank
     let batteryFrom: number | undefined, batteryTo: number | undefined
     if (v.byBattery) {
       batteryFrom = toNum(v.batteryFrom)
       batteryTo = toNum(v.batteryTo)
       const c = chargeOf(data.vehicles.find((x) => x.id === v.vehicleId), batteryFrom, batteryTo, v.amount === '' ? 0 : toNum(v.amount))
-      ;({ cost: total, price, kwh: quantity } = c)
+      ;({ cost: total, price: unitPrice, kwh: quantity } = c)
       isFullTank = batteryTo >= 100
     } else {
       total = round2(toNum(v.amount))
-      price = toNum(v.pricePerUnit)
+      unitPrice = toNum(v.pricePerUnit)
       // Keep the stored quantity on edits that don't touch amount or price.
-      quantity = record && record.totalCost === total && record.pricePerUnit === price ? record.quantity : qtyOf(total, price)
+      quantity = record && record.totalCost === total && record.pricePerUnit === unitPrice ? record.quantity : qtyOf(total, unitPrice)
       // A zero quantity would fail validation on the next load; catch the typo here.
       if (!(quantity > 0)) return setError('pricePerUnit', { message: 'Check the price. This works out to almost no fuel.' })
     }
@@ -144,7 +145,7 @@ export function FuelForm({ formId, record, vehicleId, onSaved }: { formId: strin
       fuelType: v.fuelType,
       odometer: odo,
       quantity,
-      pricePerUnit: price,
+      pricePerUnit: unitPrice,
       totalCost: total,
       batteryFrom,
       batteryTo,

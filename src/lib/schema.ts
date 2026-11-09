@@ -2,6 +2,7 @@ import { z } from 'zod'
 import {
   EXPENSE_CATEGORIES,
   FUEL_TYPES,
+  PAPER_TYPES,
   REMINDER_CATEGORIES,
   VEHICLE_TYPES,
   type AppData,
@@ -28,6 +29,7 @@ export const vehicleSchema = z.object({
   image: opt(z.string()),
   batteryKwh: opt(z.number().finite().positive()),
   electricityRate: opt(money),
+  odometerAt: opt(date),
   demo: opt(z.boolean()),
   createdAt: ts,
   updatedAt: ts,
@@ -95,6 +97,19 @@ export const reminderSchema = z.object({
   notifiedKeys: z.array(z.string()).default([]),
   lastNotifiedAt: opt(ts),
   maintenanceId: opt(z.string()),
+  paperId: opt(z.string()),
+  notes: opt(z.string()),
+  demo: opt(z.boolean()),
+  createdAt: ts,
+})
+
+export const paperSchema = z.object({
+  id: z.string().min(1),
+  vehicleId: z.string().min(1),
+  type: z.enum(PAPER_TYPES),
+  number: opt(z.string()),
+  provider: opt(z.string()),
+  expiryDate: date,
   notes: opt(z.string()),
   demo: opt(z.boolean()),
   createdAt: ts,
@@ -137,6 +152,7 @@ const settingsSchema = z.object({
   sidebarCollapsed: z.boolean().catch(false),
   dashboardRange: z.enum(['7d', '30d', '6m', '12m']).catch('6m'),
   onboarded: z.boolean().catch(false),
+  lastBackupAt: opt(ts).catch(undefined),
 })
 
 export const appDataSchema = z.object({
@@ -150,6 +166,8 @@ export const appDataSchema = z.object({
   fuel: z.array(fuelSchema),
   expenses: z.array(expenseSchema),
   reminders: z.array(reminderSchema),
+  // Added after v2; older data and backups have none.
+  papers: z.array(paperSchema).default([]),
   notifications: z.array(notificationSchema),
   customMaintenanceCategories: z.array(z.string()).default([]),
 })
@@ -163,6 +181,7 @@ export const emptyData = (): AppData => ({
   fuel: [],
   expenses: [],
   reminders: [],
+  papers: [],
   notifications: [],
   customMaintenanceCategories: [],
 })

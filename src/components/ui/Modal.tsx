@@ -41,8 +41,8 @@ export function Modal({ open, onClose, title, description, children, footer, siz
       const els = [...panel.current.querySelectorAll<HTMLElement>(FOCUSABLE)]
       if (!els.length) return
       const [first, last] = [els[0], els[els.length - 1]]
-      if (e.shiftKey && document.activeElement === first) (e.preventDefault(), last.focus())
-      else if (!e.shiftKey && document.activeElement === last) (e.preventDefault(), first.focus())
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
     }
     document.addEventListener('keydown', onKey)
     return () => {
