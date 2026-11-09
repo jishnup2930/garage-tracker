@@ -54,12 +54,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 role={t.tone === 'error' ? 'alert' : 'status'}
                 className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl bg-console p-3.5 text-console-fg shadow-soft on-console"
               >
-                <Icon aria-hidden className={cn('mt-0.5 size-5 shrink-0', t.tone === 'error' ? 'text-[#ff8a8a]' : 'text-accent')} />
+                <Icon aria-hidden className={cn('mt-0.5 size-5 shrink-0', t.tone === 'error' ? 'text-[#ff8a8a]' : 'text-[#4ade80]')} />
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold">{t.title}</p>
                   {t.message && <p className="mt-0.5 text-sm text-console-muted">{t.message}</p>}
                   {t.action && (
-                    <button className="mt-1.5 text-sm font-semibold text-accent hover:underline" onClick={() => (t.action!.onClick(), dismiss(t.id))}>
+                    <button className="mt-1.5 text-sm font-semibold text-[#4ade80] hover:underline" onClick={() => (t.action!.onClick(), dismiss(t.id))}>
                       {t.action.label}
                     </button>
                   )}

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ChartColumn, Download } from 'lucide-react'
+import { ChartColumn, Download, Wallet, CalendarDays, Car, Wrench } from 'lucide-react'
 import { useGarage } from '../../store/AppStore'
 import { useFormat } from '../../hooks/useFormat'
 import { PageHeader, Panel, Readout, Readouts } from '../../components/ui/Panel'
@@ -90,10 +90,10 @@ export function AnalyticsPage() {
       <PageHeader title="Analytics" subtitle="The true cost of owning each of your vehicles, from everything you've logged." actions={actions} />
       <div className="space-y-5">
         <Readouts>
-          <Readout label="Total ownership cost" value={f.money(totalOf(lines))} foot="Since you started tracking" />
-          <Readout label={`Spent in ${year}`} value={f.money(totalOf(lines.filter((l) => l.date.startsWith(year))))} foot="This calendar year" />
-          <Readout label="Highest spending" value={<span className="block truncate">{topVehicle?.total ? topVehicle.v.nickname : '—'}</span>} foot={topVehicle?.total ? f.money(topVehicle.total) : undefined} />
-          <Readout label="Priciest maintenance" value={<span className="block truncate">{topJob ? f.money(topJob.amount) : '—'}</span>} foot={topJob ? `${topJob.category}, ${vehicleById.get(topJob.vehicleId)?.nickname}` : 'None logged'} />
+          <Readout label="Total ownership cost" color="blue" icon={<Wallet />} value={f.money(totalOf(lines))} foot="Since you started tracking" />
+          <Readout label={`Spent in ${year}`} color="green" icon={<CalendarDays />} value={f.money(totalOf(lines.filter((l) => l.date.startsWith(year))))} foot="This calendar year" />
+          <Readout label="Highest spending" color="orange" icon={<Car />} value={<span className="block truncate">{topVehicle?.total ? topVehicle.v.nickname : '—'}</span>} foot={topVehicle?.total ? f.money(topVehicle.total) : undefined} />
+          <Readout label="Priciest maintenance" color="purple" icon={<Wrench />} value={<span className="block truncate">{topJob ? f.money(topJob.amount) : '—'}</span>} foot={topJob ? `${topJob.category}, ${vehicleById.get(topJob.vehicleId)?.nickname}` : 'None logged'} />
         </Readouts>
 
         <Panel title="Cost per vehicle" bodyClass="pt-2">
@@ -155,7 +155,7 @@ export function AnalyticsPage() {
             {maintByCat.length ? <SimpleBars layout="vertical" data={maintByCat} x="label" y="total" name="Spent" color="var(--series-2)" fmt={f.money} tickFmt={f.moneyCompact} height={Math.max(160, maintByCat.length * 36)} /> : <p className="py-12 text-center text-sm text-muted">No maintenance logged yet.</p>}
           </Panel>
           <Panel title="Yearly spending">
-            <SimpleBars data={agg.yearly} x="label" y="total" name="Spent" color="var(--series-7)" fmt={f.money} tickFmt={f.moneyCompact} />
+            <SimpleBars data={agg.yearly} x="label" y="total" name="Spent" color="var(--tone-blue)" fmt={f.money} tickFmt={f.moneyCompact} />
           </Panel>
           <Panel title="Spending by vehicle">
             {agg.byVehicle.length ? <Donut data={agg.byVehicle} colorOf={(d) => vehicleColor(data.vehicles.findIndex((v) => v.id === d.id))} /> : <p className="py-12 text-center text-sm text-muted">No spending yet.</p>}

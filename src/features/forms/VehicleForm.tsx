@@ -15,7 +15,6 @@ import { cn } from '../../lib/cn'
 export const VEHICLE_ICON: Record<VehicleType, LucideIcon> = { Car, Motorcycle: Bike, Scooter: Bike, SUV: CarFront, Truck, Other: Shapes }
 
 const schema = z.object({
-  nickname: z.string().trim().min(1, 'Give your vehicle a name').max(40, 'Keep the name under 40 characters'),
   type: z.enum(VEHICLE_TYPES),
   brand: z.string().trim().min(1, 'Brand is required').max(40),
   model: z.string().trim().min(1, 'Model is required').max(40),
@@ -33,7 +32,6 @@ export function VehicleForm({ formId, vehicle, onSaved }: { formId: string; vehi
   const { register, handleSubmit, control, watch, setValue, formState: { errors } } = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: {
-      nickname: vehicle?.nickname ?? '',
       type: vehicle?.type ?? 'Car',
       brand: vehicle?.brand ?? '',
       model: vehicle?.model ?? '',
@@ -51,7 +49,7 @@ export function VehicleForm({ formId, vehicle, onSaved }: { formId: string; vehi
     const ts = nowIso()
     const next: Vehicle = {
       ...(vehicle ?? { id: uid(), createdAt: ts }),
-      nickname: v.nickname,
+      nickname: `${v.brand} ${v.model}`, // no name field: the vehicle is labelled by brand + model
       type: v.type,
       brand: v.brand,
       model: v.model,
@@ -88,9 +86,6 @@ export function VehicleForm({ formId, vehicle, onSaved }: { formId: string; vehi
           })}
         </div>
       </fieldset>
-      <Field label="Name or nickname" error={errors.nickname?.message}>
-        {(p) => <Input {...p} placeholder="e.g. Daily driver" autoComplete="off" {...register('nickname')} />}
-      </Field>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Brand" error={errors.brand?.message}>
           {(p) => <Input {...p} placeholder="e.g. Honda" {...register('brand')} />}

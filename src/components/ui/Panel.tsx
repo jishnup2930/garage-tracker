@@ -28,24 +28,23 @@ export function Panel({ title, action, children, className, bodyClass }: { title
   )
 }
 
-/** Instrument strip: several readouts on one surface, divided like gauges on a cluster. */
+/** A row of stat tiles. */
 export function Readouts({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <div className={cn('grid grid-cols-2 overflow-hidden rounded-[22px] border border-line bg-surface lg:grid-cols-4 [&>*]:border-line max-lg:[&>*:nth-child(odd)]:border-r max-lg:[&>*:nth-child(-n+2)]:border-b lg:[&>*:not(:last-child)]:border-r', className)}>
-      {children}
-    </div>
-  )
+  return <div className={cn('grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4', className)}>{children}</div>
 }
 
-export function Readout({ label, value, icon, foot, tone }: { label: string; value: ReactNode; icon?: ReactNode; foot?: ReactNode; tone?: 'alert' }) {
+export type Tone = 'green' | 'blue' | 'orange' | 'purple' | 'red'
+
+/** Stat tile: coloured icon badge, big value, label, footnote. `color` picks the category colour. */
+export function Readout({ label, value, icon, foot, tone, color = 'green' }: { label: string; value: ReactNode; icon: ReactNode; foot?: ReactNode; tone?: 'alert'; color?: Tone }) {
   return (
-    <div className="min-w-0 p-4 sm:p-5">
-      <p className="flex items-center gap-1.5 text-[13px] font-medium text-muted">
+    <div className={cn('tone-wash min-w-0 rounded-[20px] border border-line p-4 sm:p-5', `tone-${color}`)}>
+      <span aria-hidden className="icon-chip size-10 rounded-xl [&>svg]:size-5">
         {icon}
-        {label}
-      </p>
-      <div className={cn('mt-2 font-display text-[26px] leading-none font-semibold tracking-tight sm:text-[32px]', tone === 'alert' && 'text-danger')}>{value}</div>
-      {foot && <div className="mt-2 text-xs text-muted">{foot}</div>}
+      </span>
+      <div className={cn('mt-3 font-display text-[24px] leading-none font-semibold tracking-tight sm:text-[30px]', tone === 'alert' && 'text-danger')}>{value}</div>
+      <p className="mt-1.5 text-[13px] font-medium">{label}</p>
+      {foot && <div className="mt-1 text-xs text-muted">{foot}</div>}
     </div>
   )
 }

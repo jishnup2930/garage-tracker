@@ -13,10 +13,15 @@
   --fg: #1b1d21;
   --muted: #5c5f66;
   --faint: #868991;
-  --accent: #c4f135;
-  --accent-strong: #b5e622;
-  --accent-ink: #1b1d21;
-  --accent-text: #3d6b00;
+  --accent: #16a34a;
+  --accent-strong: #15803d;
+  --accent-ink: #ffffff;
+  --accent-text: #15803d;
+  --tone-green: #16a34a;
+  --tone-blue: #2563eb;
+  --tone-orange: #ea7a12;
+  --tone-purple: #7c4ddb;
+  --tone-red: #dc2626;
   --console: #1b1d21;
   --console-2: #26292e;
   --console-fg: #e9eae4;
@@ -26,13 +31,13 @@
   --danger: #c43737;
   --info: #2a6fc4;
   --shadow: 0 1px 0 rgb(27 29 33 / 0.04), 0 12px 32px -18px rgb(27 29 33 / 0.22);
-  --series-1: #2a78d6;
-  --series-2: #eb6834;
+  --series-1: #eb6834;
+  --series-2: #6250d6;
   --series-3: #1baf7a;
-  --series-4: #eda100;
+  --series-4: #2a78d6;
   --series-5: #e87ba4;
-  --series-6: #008300;
-  --series-7: #6250d6;
+  --series-6: #eda100;
+  --series-7: #0f9fb0;
   color-scheme: light;
 }
 
@@ -44,10 +49,15 @@
   --fg: #ecede7;
   --muted: #a4a7ae;
   --faint: #7b7f87;
-  --accent: #c4f135;
-  --accent-strong: #d3ff4c;
-  --accent-ink: #121316;
-  --accent-text: #c4f135;
+  --accent: #22c55e;
+  --accent-strong: #4ade80;
+  --accent-ink: #052e16;
+  --accent-text: #4ade80;
+  --tone-green: #4ade80;
+  --tone-blue: #60a5fa;
+  --tone-orange: #fb923c;
+  --tone-purple: #a78bfa;
+  --tone-red: #f87171;
   --console: #0c0d0f;
   --console-2: #1a1c20;
   --console-fg: #e9eae4;
@@ -57,13 +67,13 @@
   --danger: #f26d6d;
   --info: #66a6f2;
   --shadow: 0 1px 0 rgb(0 0 0 / 0.2), 0 16px 36px -20px rgb(0 0 0 / 0.7);
-  --series-1: #3987e5;
-  --series-2: #d95926;
+  --series-1: #d95926;
+  --series-2: #9085e9;
   --series-3: #199e70;
-  --series-4: #c98500;
+  --series-4: #3987e5;
   --series-5: #d55181;
-  --series-6: #008300;
-  --series-7: #9085e9;
+  --series-6: #c98500;
+  --series-7: #1aa5b5;
   color-scheme: dark;
 }
 
@@ -143,4 +153,23 @@ body {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }
+}
+
+/* Category colours: fuel orange, money blue, maintenance purple, vehicles green, reminders red. */
+.tone-green { --tone: var(--tone-green); }
+.tone-blue { --tone: var(--tone-blue); }
+.tone-orange { --tone: var(--tone-orange); }
+.tone-purple { --tone: var(--tone-purple); }
+.tone-red { --tone: var(--tone-red); }
+.icon-chip {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  color: var(--tone);
+  background: color-mix(in oklab, var(--tone) 14%, transparent);
+}
+.tone-wash {
+  background:
+    radial-gradient(110% 120% at 100% 100%, color-mix(in oklab, var(--tone) 22%, transparent), transparent 65%),
+    var(--surface);
 }

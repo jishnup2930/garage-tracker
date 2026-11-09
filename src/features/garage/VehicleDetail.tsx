@@ -77,7 +77,7 @@ export function VehicleDetail({ id }: { id: string }) {
           </div>
           <h1 className="mt-2 font-display text-[34px] leading-none font-semibold tracking-[-0.02em] sm:text-[44px]">{v.nickname}</h1>
           <p className="mt-1.5 text-[15px] text-muted">
-            {v.brand} {v.model}
+            {v.type}, {v.fuelType}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
             <QuickAdd vehicleId={v.id} />
@@ -109,10 +109,10 @@ export function VehicleDetail({ id }: { id: string }) {
       {tab === 'overview' && (
         <div className="space-y-5">
           <Readouts>
-            <Readout label="Odometer" icon={<Gauge className="size-3.5" />} value={<span className="tabular">{f.num(v.currentOdometer)}</span>} foot={f.u.distance} />
-            <Readout label="Total spent" value={f.money(s.total)} foot={dist ? `${f.moneyExact(s.total / dist)} per ${f.u.distance} over ${f.dist(dist)} tracked` : 'Since you started tracking'} />
-            <Readout label="Fuel" value={f.money(s.fuel)} foot={stats.averageMileage ? `Averaging ${f.num(stats.averageMileage, 1)} ${eff}` : 'Two full fills needed for mileage'} />
-            <Readout label="Maintenance" value={f.money(s.maintenance)} foot={`${own.maintenance.length} ${own.maintenance.length === 1 ? 'service' : 'services'} logged`} />
+            <Readout label="Odometer" color="green" icon={<Gauge />} value={<span className="tabular">{f.num(v.currentOdometer)}</span>} foot={f.u.distance} />
+            <Readout label="Total spent" color="blue" icon={<Wallet />} value={f.money(s.total)} foot={dist ? `${f.moneyExact(s.total / dist)} per ${f.u.distance} over ${f.dist(dist)} tracked` : 'Since you started tracking'} />
+            <Readout label="Fuel" color="orange" icon={<Fuel />} value={f.money(s.fuel)} foot={stats.averageMileage ? `Averaging ${f.num(stats.averageMileage, 1)} ${eff}` : 'Two full fills needed for mileage'} />
+            <Readout label="Maintenance" color="purple" icon={<Wrench />} value={f.money(s.maintenance)} foot={`${own.maintenance.length} ${own.maintenance.length === 1 ? 'service' : 'services'} logged`} />
           </Readouts>
           <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
             <Panel title="Spending" action={<Segmented label="Range" value={range} onChange={setRange} options={[{ value: '30d', label: '30 days' }, { value: '6m', label: '6 months' }, { value: '12m', label: '12 months' }]} />}>

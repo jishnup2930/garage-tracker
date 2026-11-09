@@ -42,7 +42,7 @@ export function SearchDialog() {
     const vName = (id: string) => vehicleById.get(id)?.nickname ?? ''
     const edit = (kind: FormKind, id: string) => () => (setSearchOpen(false), openForm({ kind, id }))
     return [
-      ...data.vehicles.filter((v) => has(v.nickname, v.brand, v.model, v.registrationNumber)).map((v) => ({ key: v.id, icon: Car, title: v.nickname, sub: `${v.brand} ${v.model}${v.registrationNumber ? `, ${v.registrationNumber}` : ''}`, go: () => (setSearchOpen(false), navigate('garage', v.id)) })),
+      ...data.vehicles.filter((v) => has(v.nickname, v.brand, v.model, v.registrationNumber)).map((v) => ({ key: v.id, icon: Car, title: v.nickname, sub: `${v.type}${v.registrationNumber ? `, ${v.registrationNumber}` : ''}`, go: () => (setSearchOpen(false), navigate('garage', v.id)) })),
       ...data.reminders.filter((r) => has(r.title, r.category, r.notes, vName(r.vehicleId))).map((r) => ({ key: r.id, icon: BellRing, title: r.title, sub: `Reminder for ${vName(r.vehicleId)}${r.dueDate ? `, due ${f.date(r.dueDate)}` : ''}`, go: edit('reminder', r.id) })),
       ...data.maintenance.filter((m) => has(m.category, m.description, m.serviceProvider, m.notes, vName(m.vehicleId))).map((m) => ({ key: m.id, icon: Wrench, title: m.category, sub: `${vName(m.vehicleId)}, ${f.date(m.date)}, ${f.money(m.amount)}`, go: edit('maintenance', m.id) })),
       ...data.expenses.filter((e) => has(e.description, e.category, e.notes, vName(e.vehicleId))).map((e) => ({ key: e.id, icon: Wallet, title: e.description, sub: `${e.category}, ${vName(e.vehicleId)}, ${f.date(e.date)}, ${f.money(e.amount)}`, go: edit('expense', e.id) })),

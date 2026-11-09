@@ -14,7 +14,7 @@ export function MobileNav({ page }: { page: Page }) {
   const inMore = !PRIMARY.includes(page)
   const link = (n: (typeof NAV)[number]) => (
     <a key={n.page} href={`#/${n.page}`} aria-current={page === n.page ? 'page' : undefined} className={cn('flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-semibold', page === n.page ? 'text-console-fg' : 'text-console-muted')}>
-      <n.icon aria-hidden className={cn('size-5', page === n.page && 'text-accent')} strokeWidth={1.8} />
+      <n.icon aria-hidden className={cn('size-5', page === n.page && 'text-[#4ade80]')} strokeWidth={1.8} />
       {n.label.replace('My ', '')}
     </a>
   )
@@ -28,7 +28,7 @@ export function MobileNav({ page }: { page: Page }) {
         </div>
         {link(items[2])}
         <button onClick={() => setMore(true)} aria-current={inMore ? 'page' : undefined} className={cn('flex flex-1 flex-col items-center gap-1 py-2 text-[11px] font-semibold', inMore ? 'text-console-fg' : 'text-console-muted')}>
-          <MoreHorizontal aria-hidden className={cn('size-5', inMore && 'text-accent')} />
+          <MoreHorizontal aria-hidden className={cn('size-5', inMore && 'text-[#4ade80]')} />
           More
         </button>
       </nav>

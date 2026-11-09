@@ -43,7 +43,7 @@ export function RemindersPage() {
       <PageHeader title="Reminders" subtitle="Services, renewals and anything else with a due date or odometer reading." actions={reminders.length > 0 && add} />
       {perm === 'default' && data.vehicles.length > 0 && (
         <div className="mb-5 flex flex-wrap items-center gap-3 rounded-[22px] bg-console px-5 py-4 text-console-fg on-console">
-          <BellPlus className="size-5 text-accent" />
+          <BellPlus className="size-5 text-accent-text" />
           <p className="min-w-0 flex-1 text-sm">
             Want alerts outside this tab? Turn on browser notifications.
             <span className="block text-console-muted">They arrive while the app is open in your browser. Closed tabs can't receive them, so we also check every time you come back.</span>

@@ -17,6 +17,7 @@ import { dueSummary } from '../garage/NextDue'
 import { greetingWord } from '../../lib/format'
 import { insights, monthTotal } from '../../lib/calc'
 import type { ChartRange, CostLine } from '../../types'
+import { cn } from '../../lib/cn'
 
 export function DashboardPage() {
   const { data, update, lines, reminders, vehicleById } = useGarage()
@@ -56,12 +57,13 @@ export function DashboardPage() {
       </header>
 
       <Readouts>
-        <Readout label="Vehicles" icon={<Car className="size-3.5" />} value={<Odometer value={String(data.vehicles.length)} />} foot={data.vehicles.length ? `${f.dist(data.vehicles.reduce((a, v) => a + v.currentOdometer, 0))} on the clocks` : 'None added yet'} />
-        <Readout label="Spent this month" icon={<Wallet className="size-3.5" />} value={<Odometer value={f.money(spendNow)} />} foot={<Delta now={spendNow} prev={spendPrev} fmt={f.money} />} />
-        <Readout label="Fuel this month" icon={<Fuel className="size-3.5" />} value={<Odometer value={f.money(fuelNow)} />} foot={<Delta now={fuelNow} prev={fuelPrev} fmt={f.money} />} />
+        <Readout label="Vehicles" color="green" icon={<Car />} value={<Odometer value={String(data.vehicles.length)} />} foot={data.vehicles.length ? `${f.dist(data.vehicles.reduce((a, v) => a + v.currentOdometer, 0))} on the clocks` : 'None added yet'} />
+        <Readout label="Spent this month" color="blue" icon={<Wallet />} value={<Odometer value={f.money(spendNow)} />} foot={<Delta now={spendNow} prev={spendPrev} fmt={f.money} />} />
+        <Readout label="Fuel this month" color="orange" icon={<Fuel />} value={<Odometer value={f.money(fuelNow)} />} foot={<Delta now={fuelNow} prev={fuelPrev} fmt={f.money} />} />
         <Readout
           label="Upcoming maintenance"
-          icon={<Wrench className="size-3.5" />}
+          color="purple"
+          icon={<Wrench />}
           tone={overdue.length ? 'alert' : undefined}
           value={<Odometer value={String(active.length)} />}
           foot={overdue.length ? `${overdue.length} overdue` : attention.length ? `${attention.length} due soon` : active.length ? 'Nothing due soon' : 'Nothing scheduled'}
@@ -161,15 +163,12 @@ export function DashboardPage() {
       {lines.length > 0 && (
         <Panel title="Recent activity">
           <ol className="relative space-y-1">
-            {lines.slice(0, 6).map((l, i) => (
-              <li key={`${l.source}-${l.id}`} className="grid grid-cols-[20px_1fr] gap-x-3">
-                <div className="relative flex justify-center">
-                  {i < 5 && i < lines.length - 1 && <span aria-hidden className="absolute top-7 -bottom-1 w-px bg-line" />}
-                  <span aria-hidden className="relative mt-3 grid size-5 place-items-center rounded-full bg-surface-2 text-muted">
-                    {l.source === 'fuel' ? <Fuel className="size-3" /> : l.source === 'maintenance' ? <Wrench className="size-3" /> : <Wallet className="size-3" />}
-                  </span>
-                </div>
-                <button onClick={() => openForm({ kind: l.source, id: l.id })} className="flex min-w-0 items-center gap-3 rounded-xl px-2 py-2 text-left hover:bg-surface-2">
+            {lines.slice(0, 6).map((l) => (
+              <li key={`${l.source}-${l.id}`} className="flex items-center gap-1">
+                <span aria-hidden className={cn('icon-chip size-9 rounded-full', l.source === 'fuel' ? 'tone-orange' : l.source === 'maintenance' ? 'tone-purple' : 'tone-blue')}>
+                  {l.source === 'fuel' ? <Fuel className="size-4" /> : l.source === 'maintenance' ? <Wrench className="size-4" /> : <Wallet className="size-4" />}
+                </span>
+                <button onClick={() => openForm({ kind: l.source, id: l.id })} className="flex min-w-0 flex-1 items-center gap-3 rounded-xl px-2 py-2 text-left hover:bg-surface-2">
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium">{activityLabel(l)}</span>
                     <span className="block truncate text-xs text-muted">

@@ -25,7 +25,7 @@ export function VehicleCard({ vehicle: v, summary: s }: { vehicle: Vehicle; summ
           <div className="min-w-0">
             <h3 className="truncate font-display text-xl font-semibold tracking-tight">{v.nickname}</h3>
             <p className="truncate text-sm text-muted">
-              {v.brand} {v.model}
+              {v.type}, {v.fuelType}
             </p>
           </div>
           <div className="pointer-events-auto -mt-1 -mr-2">

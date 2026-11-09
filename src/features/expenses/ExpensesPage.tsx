@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Plus, Wallet, Sparkles } from 'lucide-react'
+import { Plus, Wallet, Sparkles, CalendarDays, CalendarClock, TrendingUp } from 'lucide-react'
 import { useGarage } from '../../store/AppStore'
 import { useUI } from '../../store/ui'
 import { useFormat } from '../../hooks/useFormat'
@@ -59,10 +59,10 @@ export function ExpensesPage() {
 
       <div className="space-y-5">
         <Readouts>
-          <Readout label="Total" value={f.money(total)} foot={`${filtered.length} entries`} />
-          <Readout label="This month" value={f.money(monthTotal(filtered, 0))} foot={<Delta now={monthTotal(filtered, 0)} prev={monthTotal(filtered, 1)} fmt={f.money} />} />
-          <Readout label="Last month" value={f.money(monthTotal(filtered, 1))} foot="Previous calendar month" />
-          <Readout label="Monthly average" value={months ? f.money(total / months) : '—'} foot={months ? `Across ${months} ${months === 1 ? 'month' : 'months'}` : 'No data'} />
+          <Readout label="Total" color="blue" icon={<Wallet />} value={f.money(total)} foot={`${filtered.length} entries`} />
+          <Readout label="This month" color="green" icon={<CalendarDays />} value={f.money(monthTotal(filtered, 0))} foot={<Delta now={monthTotal(filtered, 0)} prev={monthTotal(filtered, 1)} fmt={f.money} />} />
+          <Readout label="Last month" color="purple" icon={<CalendarClock />} value={f.money(monthTotal(filtered, 1))} foot="Previous calendar month" />
+          <Readout label="Monthly average" color="orange" icon={<TrendingUp />} value={months ? f.money(total / months) : '—'} foot={months ? `Across ${months} ${months === 1 ? 'month' : 'months'}` : 'No data'} />
         </Readouts>
         <div className="grid grid-cols-3 gap-px overflow-hidden rounded-[22px] border border-line bg-line text-sm">
           {(['Fuel', 'Maintenance', 'Repairs'] as const).map((c) => (
@@ -98,7 +98,7 @@ export function ExpensesPage() {
           <Panel title="Fuel vs maintenance">
             <PairBars data={agg.fuelVsMaint} fmt={f.money} tickFmt={f.moneyCompact} />
           </Panel>
-          <Panel title="Yearly overview">{agg.yearly.length ? <SimpleBars data={agg.yearly} x="label" y="total" name="Spent" color="var(--series-7)" fmt={f.money} tickFmt={f.moneyCompact} height={256} /> : <Empty />}</Panel>
+          <Panel title="Yearly overview">{agg.yearly.length ? <SimpleBars data={agg.yearly} x="label" y="total" name="Spent" color="var(--tone-blue)" fmt={f.money} tickFmt={f.moneyCompact} height={256} /> : <Empty />}</Panel>
         </div>
 
         <Panel title="All entries" action={<span className="text-sm text-muted">Tap an entry to edit it</span>}>

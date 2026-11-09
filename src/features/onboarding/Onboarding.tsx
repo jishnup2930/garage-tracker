@@ -118,7 +118,7 @@ export function Onboarding() {
                       <div className="min-w-0">
                         <p className="truncate font-display text-xl font-semibold">{added.nickname}</p>
                         <p className="truncate text-sm text-muted">
-                          {added.brand} {added.model}, {num(added.currentOdometer)} {data.settings.distanceUnit}
+                          {added.type}, {num(added.currentOdometer)} {data.settings.distanceUnit}
                         </p>
                         {added.registrationNumber && <Plate className="mt-1.5">{added.registrationNumber}</Plate>}
                       </div>

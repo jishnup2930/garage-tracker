@@ -38,14 +38,13 @@ export function Sidebar({ page }: { page: Page }) {
               title={collapsed ? label : undefined}
               className={cn(
                 'relative flex h-11 items-center gap-3 rounded-xl px-3 text-[14px] font-medium transition-colors',
-                active ? 'bg-console-2 text-console-fg' : 'text-console-muted hover:bg-console-2/60 hover:text-console-fg',
+                active ? 'bg-accent font-semibold text-accent-ink' : 'text-console-muted hover:bg-console-2/60 hover:text-console-fg',
               )}
             >
-              {active && <motion.span layoutId="nav-indicator" className="absolute top-2.5 bottom-2.5 left-0 w-[3px] rounded-full bg-accent" />}
-              <Icon aria-hidden className={cn('size-[19px] shrink-0', active && 'text-accent')} strokeWidth={1.8} />
+              <Icon aria-hidden className="size-[19px] shrink-0" strokeWidth={1.8} />
               {!collapsed && <span className="truncate">{label}</span>}
               {p === 'reminders' && attention > 0 && (
-                <span className={cn('grid min-w-5 place-items-center rounded-full bg-accent px-1 text-[11px] font-bold text-accent-ink', collapsed ? 'absolute top-1.5 right-1.5 h-4 min-w-4' : 'ml-auto h-5')}>
+                <span className={cn('grid min-w-5 place-items-center rounded-full bg-danger px-1 text-[11px] font-bold text-white', collapsed ? 'absolute top-1.5 right-1.5 h-4 min-w-4' : 'ml-auto h-5')}>
                   {attention}
                   <span className="sr-only"> need attention</span>
                 </span>

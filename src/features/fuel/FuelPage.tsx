@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Fuel, Plus } from 'lucide-react'
+import { Fuel, Plus, Gauge, Activity, Coins } from 'lucide-react'
 import { format, parseISO, subMonths } from 'date-fns'
 import { useGarage } from '../../store/AppStore'
 import { useUI } from '../../store/ui'
@@ -61,10 +61,10 @@ export function FuelPage() {
       <FilterBar filters={filters} setFilters={setFilters} />
       <div className="space-y-5">
         <Readouts>
-          <Readout label="Fuel this month" value={f.money(thisMonth)} foot={`${f.money(stats.totalCost)} in the selected range`} />
-          <Readout label="Average mileage" value={vehicle ? (stats.averageMileage ? `${f.num(stats.averageMileage, 1)}` : '—') : '—'} foot={vehicle ? (stats.averageMileage ? eff : 'Needs two full fills') : 'Choose a vehicle above'} />
-          <Readout label="Latest mileage" value={vehicle && stats.latestMileage ? f.num(stats.latestMileage, 1) : '—'} foot={vehicle ? (stats.latestMileage ? eff : 'Needs two full fills') : 'Choose a vehicle above'} />
-          <Readout label="Fuel cost per km" value={vehicle && stats.costPerDistance ? f.moneyExact(stats.costPerDistance) : '—'} foot={unit ? `${f.num(stats.totalQuantity, 1)} ${unit} filled` : `${entries.length} refills`} />
+          <Readout label="Fuel this month" color="orange" icon={<Fuel />} value={f.money(thisMonth)} foot={`${f.money(stats.totalCost)} in the selected range`} />
+          <Readout label="Average mileage" color="green" icon={<Gauge />} value={vehicle ? (stats.averageMileage ? `${f.num(stats.averageMileage, 1)}` : '—') : '—'} foot={vehicle ? (stats.averageMileage ? eff : 'Needs two full fills') : 'Choose a vehicle above'} />
+          <Readout label="Latest mileage" color="purple" icon={<Activity />} value={vehicle && stats.latestMileage ? f.num(stats.latestMileage, 1) : '—'} foot={vehicle ? (stats.latestMileage ? eff : 'Needs two full fills') : 'Choose a vehicle above'} />
+          <Readout label="Fuel cost per km" color="blue" icon={<Coins />} value={vehicle && stats.costPerDistance ? f.moneyExact(stats.costPerDistance) : '—'} foot={unit ? `${f.num(stats.totalQuantity, 1)} ${unit} filled` : `${entries.length} refills`} />
         </Readouts>
 
         {!vehicle && perVehicle.length > 1 && (
@@ -89,16 +89,16 @@ export function FuelPage() {
             <SimpleBars data={monthly} x="label" y="spend" name="Fuel spend" fmt={f.money} tickFmt={f.moneyCompact} />
           </Panel>
           <Panel title={unit ? `Fuel used per month (${unit})` : 'Fuel used per month'}>
-            {unit ? <SimpleBars data={monthly} x="label" y="quantity" name={`Quantity (${unit})`} color="var(--series-3)" fmt={(n) => `${f.num(n, 1)} ${unit}`} tickFmt={(n) => f.num(n)} /> : <p className="py-16 text-center text-sm text-muted">Litres and kWh can't share a chart. Choose a vehicle to see its consumption.</p>}
+            {unit ? <SimpleBars data={monthly} x="label" y="quantity" name={`Quantity (${unit})`} color="var(--series-1)" fmt={(n) => `${f.num(n, 1)} ${unit}`} tickFmt={(n) => f.num(n)} /> : <p className="py-16 text-center text-sm text-muted">Litres and kWh can't share a chart. Choose a vehicle to see its consumption.</p>}
           </Panel>
           <Panel title={`Mileage trend${eff ? ` (${eff})` : ''}`}>
             {vehicle && segs.length >= 2 ? <TrendLine data={segs} x="label" y="mileage" name="Mileage" color="var(--series-3)" fmt={(n) => `${f.num(n, 1)} ${eff}`} tickFmt={(n) => f.num(n, 1)} /> : <p className="py-16 text-center text-sm text-muted">{vehicle ? 'Log a few more full fills to see how mileage changes.' : 'Choose a vehicle to see its mileage trend.'}</p>}
           </Panel>
           <Panel title={`Cost per ${f.u.distance}`}>
-            {vehicle && segs.length >= 2 ? <TrendLine data={segs} x="label" y="cpk" name={`Cost per ${f.u.distance}`} color="var(--series-2)" fmt={f.moneyExact} /> : <p className="py-16 text-center text-sm text-muted">{vehicle ? 'Log a few more full fills to see cost per distance.' : 'Choose a vehicle to see what each kilometre costs.'}</p>}
+            {vehicle && segs.length >= 2 ? <TrendLine data={segs} x="label" y="cpk" name={`Cost per ${f.u.distance}`} color="var(--series-1)" fmt={f.moneyExact} /> : <p className="py-16 text-center text-sm text-muted">{vehicle ? 'Log a few more full fills to see cost per distance.' : 'Choose a vehicle to see what each kilometre costs.'}</p>}
           </Panel>
           <Panel title="Fuel price trend" className="lg:col-span-2">
-            {priceTrend.length >= 2 && units.size === 1 ? <TrendLine data={priceTrend} x="label" y="price" name={`Price per ${unit}`} color="var(--series-7)" fmt={f.moneyExact} /> : <p className="py-16 text-center text-sm text-muted">{units.size > 1 ? 'Prices per litre and per kWh differ too much to chart together. Choose a vehicle.' : 'Log a couple of refills to see the price trend.'}</p>}
+            {priceTrend.length >= 2 && units.size === 1 ? <TrendLine data={priceTrend} x="label" y="price" name={`Price per ${unit}`} color="var(--series-4)" fmt={f.moneyExact} /> : <p className="py-16 text-center text-sm text-muted">{units.size > 1 ? 'Prices per litre and per kWh differ too much to chart together. Choose a vehicle.' : 'Log a couple of refills to see the price trend.'}</p>}
           </Panel>
         </div>
 

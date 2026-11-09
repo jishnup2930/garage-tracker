@@ -12,9 +12,9 @@ export function buildDemoData(now = new Date()): Pick<AppData, 'vehicles' | 'mai
   const ahead = (n: number) => todayStr(addDays(now, n))
 
   const mk = (v: Omit<Vehicle, 'id' | 'createdAt' | 'updatedAt' | 'demo'>): Vehicle => ({ ...v, id: uid(), demo: true, createdAt: ts, updatedAt: ts })
-  const car = mk({ nickname: 'City', type: 'Car', brand: 'Honda', model: 'City ZX', registrationNumber: 'DEMO 01', fuelType: 'Petrol', currentOdometer: 0, purchaseDate: day(1400) })
-  const bike = mk({ nickname: 'Bullet', type: 'Motorcycle', brand: 'Royal Enfield', model: 'Classic 350', registrationNumber: 'DEMO 02', fuelType: 'Petrol', currentOdometer: 0, purchaseDate: day(900) })
-  const ev = mk({ nickname: 'Zippy', type: 'Scooter', brand: 'Ather', model: '450X', fuelType: 'Electric', currentOdometer: 0, purchaseDate: day(400) })
+  const car = mk({ nickname: 'Honda City ZX', type: 'Car', brand: 'Honda', model: 'City ZX', registrationNumber: 'DEMO 01', fuelType: 'Petrol', currentOdometer: 0, purchaseDate: day(1400) })
+  const bike = mk({ nickname: 'Royal Enfield Classic 350', type: 'Motorcycle', brand: 'Royal Enfield', model: 'Classic 350', registrationNumber: 'DEMO 02', fuelType: 'Petrol', currentOdometer: 0, purchaseDate: day(900) })
+  const ev = mk({ nickname: 'Ather 450X', type: 'Scooter', brand: 'Ather', model: '450X', fuelType: 'Electric', currentOdometer: 0, purchaseDate: day(400) })
 
   const fuel: FuelEntry[] = []
   const addFuel = (v: Vehicle, startOdo: number, every: number, perDay: number, eff: number, price: number, cap: number) => {

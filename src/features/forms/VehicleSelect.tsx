@@ -11,7 +11,7 @@ export const VehicleSelect = forwardRef<HTMLSelectElement, SelectHTMLAttributes<
       </option>
       {data.vehicles.map((v) => (
         <option key={v.id} value={v.id}>
-          {v.nickname} ({v.brand} {v.model})
+          {v.nickname}{v.registrationNumber ? ` (${v.registrationNumber})` : ''}
         </option>
       ))}
     </Select>
