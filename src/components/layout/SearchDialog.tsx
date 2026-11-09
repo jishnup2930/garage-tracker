@@ -75,7 +75,7 @@ export function SearchDialog() {
           aria-expanded={hits.length > 0}
           aria-controls="search-results"
           aria-activedescendant={hits[active] ? `hit-${hits[active].key}` : undefined}
-          className="h-12 w-full rounded-xl border border-line bg-surface-2 pr-4 pl-10 text-[15px] focus:border-fg focus:outline-none"
+          className="h-12 w-full rounded-xl border border-line bg-surface-2 pr-4 pl-10 text-base focus:border-fg focus:outline-none"
         />
       </div>
       <ul id="search-results" role="listbox" className="mt-3 max-h-[50dvh] overflow-y-auto">

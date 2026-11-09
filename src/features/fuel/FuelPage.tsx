@@ -51,7 +51,7 @@ export function FuelPage() {
     [data.vehicles, data.fuel, matchRange],
   )
 
-  const add = <Button icon={<Plus className="size-4" strokeWidth={2.4} />} onClick={() => openForm({ kind: 'fuel', vehicleId: filters.vehicleId || undefined })}>Log a refill</Button>
+  const add = <Button icon={<Plus className="size-4" strokeWidth={2.4} />} onClick={() => openForm({ kind: 'fuel', vehicleId: filters.vehicleId || undefined })}>{vehicle?.fuelType === 'Electric' ? 'Log a charge' : 'Log a refill'}</Button>
   if (!data.fuel.length)
     return (
       <>
@@ -63,7 +63,8 @@ export function FuelPage() {
     )
 
   const eff = vehicle ? f.effUnit(vehicle.fuelType, stats.mode) : ''
-  const range = stats.mode === 'battery'
+  const range = !!vehicle && stats.mode === 'battery'
+  const ev = vehicle?.fuelType === 'Electric'
   const mil = (n: number) => f.num(n, range ? 0 : 1)
   return (
     <>
@@ -71,7 +72,7 @@ export function FuelPage() {
       <FilterBar filters={filters} setFilters={setFilters} />
       <div className="space-y-5">
         <Readouts>
-          <Readout label="Fuel this month" color="orange" icon={<Fuel />} value={f.money(thisMonth)} foot={`${f.money(stats.totalCost)} in the selected range`} />
+          <Readout label={ev ? 'Charging this month' : 'Fuel this month'} color="orange" icon={<Fuel />} value={f.money(thisMonth)} foot={`${f.money(stats.totalCost)} in the selected range`} />
           <Readout label={`Fuel cost per ${f.u.distance}`} color="blue" icon={<Coins />} value={vehicle && stats.costPerDistance ? f.moneyExact(stats.costPerDistance) : '—'} foot={vehicle ? (stats.costPerDistance ? `Over ${f.dist(sum(stats.segments.map((s) => s.distance)))} driven` : 'Needs two refills') : 'Choose a vehicle above'} />
           <Readout label={range ? 'Range per full charge' : 'Average mileage'} color="green" icon={<Gauge />} value={vehicle && stats.averageMileage ? mil(stats.averageMileage) : '—'} foot={vehicle ? (stats.averageMileage ? `${eff}, ${mileageBasis(stats)}` : 'Needs two refills') : 'Choose a vehicle above'} />
           <Readout label={range ? 'Latest range' : 'Latest mileage'} color="purple" icon={<Activity />} value={vehicle && stats.latestMileage ? mil(stats.latestMileage) : '—'} foot={vehicle ? (stats.latestMileage ? (stats.estimated ? `${eff}, varies with tank level` : eff) : 'Needs two refills') : 'Choose a vehicle above'} />
@@ -81,13 +82,17 @@ export function FuelPage() {
           <Panel title="Mileage by vehicle">
             <ul className="divide-y divide-line text-sm">
               {perVehicle.map(({ v, s }) => (
-                <li key={v.id} className="flex flex-wrap items-center gap-x-6 gap-y-1 py-2.5">
-                  <button className="min-w-32 flex-1 text-left font-semibold hover:underline" onClick={() => setFilters({ ...filters, vehicleId: v.id })}>
-                    {v.nickname}
-                  </button>
-                  <span className="text-muted">Avg <span className="font-semibold text-fg tabular">{s.averageMileage ? f.mileage(s.averageMileage, v.fuelType, s.mode) : '—'}</span></span>
-                  <span className="text-muted">Per {f.u.distance} <span className="font-semibold text-fg tabular">{s.costPerDistance ? f.moneyExact(s.costPerDistance) : '—'}</span></span>
-                  <span className="w-24 text-right font-semibold tabular">{f.money(s.totalCost)}</span>
+                <li key={v.id} className="py-2.5">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <button className="min-w-0 truncate text-left font-semibold hover:underline" onClick={() => setFilters({ ...filters, vehicleId: v.id })}>
+                      {v.nickname}
+                    </button>
+                    <span className="shrink-0 font-semibold tabular">{f.money(s.totalCost)}</span>
+                  </div>
+                  <p className="mt-0.5 text-[13px] text-muted">
+                    {s.averageMileage ? f.mileage(s.averageMileage, v.fuelType, s.mode) : 'Mileage needs two refills'}
+                    {s.costPerDistance ? `, ${f.moneyExact(s.costPerDistance)} per ${f.u.distance}` : ''}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -95,24 +100,33 @@ export function FuelPage() {
         )}
 
         <div className="grid gap-5 lg:grid-cols-2">
-          <Panel title="Monthly fuel spending">
-            <SimpleBars data={monthly} x="label" y="spend" name="Fuel spend" fmt={f.money} tickFmt={f.moneyCompact} />
+          <Panel title={ev ? 'Monthly charging spend' : 'Monthly fuel spending'}>
+            <SimpleBars data={monthly} x="label" y="spend" name={ev ? 'Charging spend' : 'Fuel spend'} fmt={f.money} tickFmt={f.moneyCompact} />
           </Panel>
-          <Panel title={unit ? `Fuel used per month (${unit})` : 'Fuel used per month'}>
-            {unit ? <SimpleBars data={monthly} x="label" y="quantity" name={`Quantity (${unit})`} color="var(--series-1)" fmt={(n) => `${f.num(n, 1)} ${unit}`} tickFmt={(n) => f.num(n)} /> : <p className="py-16 text-center text-sm text-muted">Litres and kWh can't share a chart. Choose a vehicle to see its consumption.</p>}
-          </Panel>
-          <Panel title={`Mileage trend${eff ? ` (${eff})` : ''}`}>
-            {vehicle && segs.length >= 2 ? <TrendLine data={segs} x="label" y="mileage" name="Mileage" color="var(--series-3)" fmt={(n) => `${f.num(n, 1)} ${eff}`} tickFmt={(n) => f.num(n, 1)} /> : <p className="py-16 text-center text-sm text-muted">{vehicle ? 'Log a few more refills to see how mileage changes.' : 'Choose a vehicle to see its mileage trend.'}</p>}
-          </Panel>
-          <Panel title={`Cost per ${f.u.distance}`}>
-            {vehicle && segs.length >= 2 ? <TrendLine data={segs} x="label" y="cpk" name={`Cost per ${f.u.distance}`} color="var(--series-1)" fmt={f.moneyExact} /> : <p className="py-16 text-center text-sm text-muted">{vehicle ? 'Log a few more refills to see cost per distance.' : 'Choose a vehicle to see what each kilometre costs.'}</p>}
-          </Panel>
-          <Panel title="Fuel price trend" className="lg:col-span-2">
-            {priceTrend.length >= 2 && units.size === 1 ? <TrendLine data={priceTrend} x="label" y="price" name={`Price per ${unit}`} color="var(--series-4)" fmt={f.moneyExact} /> : <p className="py-16 text-center text-sm text-muted">{units.size > 1 ? 'Prices per litre and per kWh differ too much to chart together. Choose a vehicle.' : 'Log a couple of refills to see the price trend.'}</p>}
-          </Panel>
+          {/* Charts that only make sense for one vehicle are left out until one is chosen. */}
+          {unit && (
+            <Panel title={`${ev ? 'Energy' : 'Fuel'} used per month (${unit})`}>
+              <SimpleBars data={monthly} x="label" y="quantity" name={`Quantity (${unit})`} color="var(--series-1)" fmt={(n) => `${f.num(n, 1)} ${unit}`} tickFmt={(n) => f.num(n)} />
+            </Panel>
+          )}
+          {vehicle && (
+            <>
+              <Panel title={`${range ? 'Range' : 'Mileage'} trend (${eff})`}>
+                {segs.length >= 2 ? <TrendLine data={segs} x="label" y="mileage" name={range ? 'Range' : 'Mileage'} color="var(--series-3)" fmt={(n) => `${f.num(n, 1)} ${eff}`} tickFmt={(n) => f.num(n, 1)} /> : <p className="py-16 text-center text-sm text-muted">Log a few more {ev ? 'charges' : 'refills'} to see how this changes.</p>}
+              </Panel>
+              <Panel title={`Cost per ${f.u.distance}`}>
+                {segs.length >= 2 ? <TrendLine data={segs} x="label" y="cpk" name={`Cost per ${f.u.distance}`} color="var(--series-1)" fmt={f.moneyExact} /> : <p className="py-16 text-center text-sm text-muted">Log a few more {ev ? 'charges' : 'refills'} to see cost per distance.</p>}
+              </Panel>
+            </>
+          )}
+          {priceTrend.length >= 2 && units.size === 1 && (
+            <Panel title={`Price per ${unit} trend`} className="lg:col-span-2">
+              <TrendLine data={priceTrend} x="label" y="price" name={`Price per ${unit}`} color="var(--series-4)" fmt={f.moneyExact} />
+            </Panel>
+          )}
         </div>
 
-        <Panel title="Refill history">{entries.length ? <FuelLog entries={entries} showVehicle={!vehicle} /> : <p className="py-10 text-center text-sm text-muted">No refills match these filters.</p>}</Panel>
+        <Panel title={ev ? 'Charging history' : 'Refill history'}>{entries.length ? <FuelLog entries={entries} showVehicle={!vehicle} /> : <p className="py-10 text-center text-sm text-muted">No refills match these filters.</p>}</Panel>
       </div>
     </>
   )

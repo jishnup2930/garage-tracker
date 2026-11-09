@@ -32,7 +32,7 @@ export function SimpleBars({ data, x, y, name, color = 'var(--series-1)', fmt, t
           {vertical ? (
             <>
               <XAxis type="number" {...axis} tickFormatter={tickFmt ?? fmt} />
-              <YAxis type="category" dataKey={x} {...axis} width={96} />
+              <YAxis type="category" dataKey={x} {...axis} width={124} interval={0} />
             </>
           ) : (
             <>

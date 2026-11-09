@@ -8,6 +8,7 @@ import { Menu } from '../../components/ui/Menu'
 import { useUI } from '../../store/ui'
 import { useFormat } from '../../hooks/useFormat'
 import { NextDue } from './NextDue'
+import { cn } from '../../lib/cn'
 
 export function VehicleCard({ vehicle: v, summary: s }: { vehicle: Vehicle; summary?: VehicleSummary }) {
   const { openForm } = useUI()
@@ -17,7 +18,7 @@ export function VehicleCard({ vehicle: v, summary: s }: { vehicle: Vehicle; summ
     <motion.article layout className="group relative flex min-w-0 flex-col overflow-hidden rounded-[22px] border border-line bg-surface transition-[border-color,box-shadow] hover:border-faint/70 hover:shadow-soft">
       <a href={`#/garage/${v.id}`} className="absolute inset-0 z-0 rounded-[22px]" aria-label={`View ${v.nickname}`} />
       <div className="relative">
-        <VehicleThumb vehicle={v} className="aspect-[16/9] w-full transition-transform duration-500 group-hover:scale-[1.02]" iconClass="size-16" />
+        <VehicleThumb vehicle={v} className={cn('w-full transition-transform duration-500 group-hover:scale-[1.02]', v.image ? 'aspect-[16/9]' : 'aspect-[3/1]')} iconClass="size-12" />
         {v.demo && <span className="absolute top-3 left-3 rounded-full bg-console/80 px-2 py-0.5 text-[11px] font-semibold text-console-fg">Demo</span>}
       </div>
       <div className="pointer-events-none relative flex flex-1 flex-col p-4 sm:p-5">

@@ -39,7 +39,7 @@ export function ReminderList({ items, showVehicle = true }: { items: EvaluatedRe
                 <StatusBadge state={e.state} />
                 {isSnoozed(r, today) && <span className="text-xs text-muted">Snoozed until {f.date(r.snoozedUntil)}</span>}
               </div>
-              <p className="mt-0.5 truncate text-[13px] text-muted">
+              <p className="mt-0.5 line-clamp-2 text-[13px] text-muted">
                 {showVehicle && vehicle ? `${vehicle.nickname}, ` : ''}
                 {r.status === 'completed'
                   ? `Done ${r.completedAt ? f.date(r.completedAt.slice(0, 10)) : ''}`

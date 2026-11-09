@@ -28,8 +28,35 @@ export function FuelLog({ entries, showVehicle = true }: { entries: FuelEntry[];
   const [count, setCount] = useState(30)
   const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date) || b.odometer - a.odometer)
 
+  const amountOf = (e: FuelEntry) => (e.batteryTo != null ? `${e.batteryFrom}–${e.batteryTo}%` : `${f.num(e.quantity, 2)} ${f.u.volume(e.fuelType)}`)
   return (
-    <div className="-mx-5 overflow-x-auto sm:-mx-6">
+    <>
+    {/* Phones: one tappable row per refill instead of a 7-column table. */}
+    <ul className="-mx-5 divide-y divide-line/70 sm:hidden">
+      {sorted.slice(0, count).map((e) => {
+        const mileage = mileageById.get(e.id)
+        return (
+          <li key={e.id}>
+            <button className="w-full px-5 py-3 text-left hover:bg-surface-2" onClick={() => openForm({ kind: 'fuel', id: e.id })}>
+              <span className="flex items-baseline justify-between gap-3">
+                <span className="min-w-0 truncate font-medium">
+                  {f.date(e.date)}
+                  {showVehicle && <span className="font-normal text-muted">, {vehicleById.get(e.vehicleId)?.nickname}</span>}
+                </span>
+                <span className="shrink-0 font-semibold tabular">{e.totalCost ? f.money(e.totalCost) : '—'}</span>
+              </span>
+              <span className="mt-0.5 flex justify-between gap-3 text-xs text-muted">
+                <span className="truncate">
+                  {f.dist(e.odometer)}, {amountOf(e)}
+                </span>
+                {mileage && <span className="shrink-0 font-medium text-fg tabular">{mileage}</span>}
+              </span>
+            </button>
+          </li>
+        )
+      })}
+    </ul>
+    <div className="-mx-5 hidden overflow-x-auto sm:-mx-6 sm:block">
       <table className="w-full min-w-[640px] text-sm">
         <thead>
           <tr className="border-b border-line text-left text-xs text-muted">
@@ -44,7 +71,6 @@ export function FuelLog({ entries, showVehicle = true }: { entries: FuelEntry[];
         </thead>
         <tbody>
           {sorted.slice(0, count).map((e) => {
-            const unit = f.u.volume(e.fuelType)
             const mileage = mileageById.get(e.id)
             return (
               <tr key={e.id} className="cursor-pointer border-b border-line/70 last:border-0 hover:bg-surface-2" onClick={() => openForm({ kind: 'fuel', id: e.id })}>
@@ -56,9 +82,7 @@ export function FuelLog({ entries, showVehicle = true }: { entries: FuelEntry[];
                 </td>
                 {showVehicle && <td className="py-2.5">{vehicleById.get(e.vehicleId)?.nickname}</td>}
                 <td className="py-2.5 text-right tabular">{f.num(e.odometer)}</td>
-                <td className="py-2.5 text-right tabular">
-                  {e.batteryTo != null ? `${e.batteryFrom}–${e.batteryTo}%` : `${f.num(e.quantity, 2)} ${unit}`}
-                </td>
+                <td className="py-2.5 text-right tabular">{amountOf(e)}</td>
                 <td className="py-2.5 text-right tabular text-muted">{f.moneyExact(e.pricePerUnit)}</td>
                 <td className="py-2.5 text-right font-semibold tabular">{f.money(e.totalCost)}</td>
                 <td className={cn('py-2.5 pr-5 text-right tabular sm:pr-6', !mileage && 'text-faint')}>{mileage ?? '—'}</td>
@@ -67,7 +91,8 @@ export function FuelLog({ entries, showVehicle = true }: { entries: FuelEntry[];
           })}
         </tbody>
       </table>
-      {sorted.length > count && <div className="px-5 sm:px-6"><ShowMore left={sorted.length - count} onClick={() => setCount((c) => c + 30)} /></div>}
     </div>
+    {sorted.length > count && <ShowMore left={sorted.length - count} onClick={() => setCount((c) => c + 30)} />}
+    </>
   )
 }

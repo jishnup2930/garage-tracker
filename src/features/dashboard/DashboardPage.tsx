@@ -139,7 +139,7 @@ export function DashboardPage() {
                   <button onClick={() => openForm({ kind: 'reminder', id: r.reminder.id })} className="-mx-2 flex w-[calc(100%+1rem)] items-start gap-3 rounded-xl px-2 py-2.5 text-left hover:bg-surface-2">
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-semibold">{r.reminder.title}</span>
-                      <span className="block truncate text-xs text-muted">
+                      <span className="line-clamp-2 block text-xs text-muted">
                         {r.vehicle?.nickname}, {dueSummary(r, f).toLowerCase()}
                       </span>
                     </span>
@@ -201,7 +201,7 @@ export function DashboardPage() {
 }
 
 function activityLabel(l: CostLine) {
-  if (l.source === 'fuel') return 'Added fuel'
+  if (l.source === 'fuel') return l.description.startsWith('Charging') ? 'Charged' : 'Added fuel'
   if (l.source === 'maintenance') return l.description
   return `${l.category}: ${l.description}`
 }

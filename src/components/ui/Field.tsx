@@ -3,7 +3,7 @@ import { ChevronDown } from 'lucide-react'
 import { cn } from '../../lib/cn'
 
 const control =
-  'w-full rounded-xl border border-line bg-surface px-3.5 text-[15px] text-fg placeholder:text-faint transition-colors hover:border-faint focus:border-fg focus:outline-none aria-invalid:border-danger disabled:opacity-60 sm:text-sm'
+  'w-full rounded-xl border border-line bg-surface px-3.5 text-base text-fg placeholder:text-faint transition-colors hover:border-faint focus:border-fg focus:outline-none aria-invalid:border-danger disabled:opacity-60 sm:text-sm'
 
 interface FieldProps {
   label: string

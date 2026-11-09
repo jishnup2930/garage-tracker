@@ -113,7 +113,7 @@ export function VehicleForm({ formId, vehicle, onSaved }: { formId: string; vehi
           {(p) => <Input {...p} inputMode="numeric" suffix={unit} placeholder="0" {...register('currentOdometer')} />}
         </Field>
         <Field label="Registration number" optional error={errors.registrationNumber?.message}>
-          {(p) => <Input {...p} className="uppercase" placeholder="e.g. KA 01 AB 1234" {...register('registrationNumber')} />}
+          {(p) => <Input {...p} className="uppercase placeholder:normal-case" placeholder="e.g. KA 01 AB 1234" {...register('registrationNumber')} />}
         </Field>
         <Field label="Purchase date" optional error={errors.purchaseDate?.message}>
           {(p) => <Input {...p} type="date" max={todayStr()} {...register('purchaseDate')} />}

@@ -21,7 +21,7 @@ export function NextDue({ r, className }: { r?: EvaluatedReminder; className?: s
       <span aria-hidden className={cn('mt-1.5 size-2 shrink-0 rounded-full', statusDot[r.eval.state])} />
       <span className="min-w-0">
         <span className="block truncate font-medium text-fg">{r.reminder.title}</span>
-        <span className={cn('block truncate text-xs', r.eval.state === 'overdue' ? 'text-danger' : r.eval.state === 'upcoming' ? 'text-muted' : 'text-warn')}>{dueSummary(r, f)}</span>
+        <span className={cn('line-clamp-2 block text-xs', r.eval.state === 'overdue' ? 'text-danger' : r.eval.state === 'upcoming' ? 'text-muted' : 'text-warn')}>{dueSummary(r, f)}</span>
       </span>
     </span>
   )

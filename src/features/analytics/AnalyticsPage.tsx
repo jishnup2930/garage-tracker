@@ -92,12 +92,37 @@ export function AnalyticsPage() {
         <Readouts>
           <Readout label="Total ownership cost" color="blue" icon={<Wallet />} value={f.money(totalOf(lines))} foot="Since you started tracking" />
           <Readout label={`Spent in ${year}`} color="green" icon={<CalendarDays />} value={f.money(totalOf(lines.filter((l) => l.date.startsWith(year))))} foot="This calendar year" />
-          <Readout label="Highest spending" color="orange" icon={<Car />} value={<span className="block truncate">{topVehicle?.total ? topVehicle.v.nickname : '—'}</span>} foot={topVehicle?.total ? f.money(topVehicle.total) : undefined} />
+          <Readout label="Highest spending" color="orange" icon={<Car />} value={<span className="line-clamp-2 block text-xl leading-tight sm:text-2xl">{topVehicle?.total ? topVehicle.v.nickname : '—'}</span>} foot={topVehicle?.total ? f.money(topVehicle.total) : undefined} />
           <Readout label="Priciest maintenance" color="purple" icon={<Wrench />} value={<span className="block truncate">{topJob ? f.money(topJob.amount) : '—'}</span>} foot={topJob ? `${topJob.category}, ${vehicleById.get(topJob.vehicleId)?.nickname}` : 'None logged'} />
         </Readouts>
 
         <Panel title="Cost per vehicle" bodyClass="pt-2">
-          <div className="-mx-5 overflow-x-auto sm:-mx-6">
+          {/* Phones: one block per vehicle instead of an 8-column table. */}
+          <ul className="divide-y divide-line sm:hidden">
+            {rows.map((r) => (
+              <li key={r.v.id} className="py-3">
+                <a href={`#/garage/${r.v.id}`} className="flex items-baseline justify-between gap-3">
+                  <span className="flex min-w-0 items-center gap-2 font-semibold">
+                    <span className="size-2.5 shrink-0 rounded-[3px]" style={{ background: r.color }} />
+                    <span className="truncate">{r.v.nickname}</span>
+                  </span>
+                  <span className="shrink-0 font-semibold tabular">{f.money(r.total)}</span>
+                </a>
+                <dl className="mt-2 grid grid-cols-3 gap-2 text-xs">
+                  <div><dt className="text-muted">Fuel</dt><dd className="tabular">{f.money(r.fuel)}</dd></div>
+                  <div><dt className="text-muted">Maintenance</dt><dd className="tabular">{f.money(r.maint)}</dd></div>
+                  <div><dt className="text-muted">Other</dt><dd className="tabular">{f.money(r.total - r.fuel - r.maint)}</dd></div>
+                  <div><dt className="text-muted">Per {f.u.distance}</dt><dd className="tabular">{r.cpk ? f.moneyExact(r.cpk) : '—'}</dd></div>
+                  <div className="col-span-2"><dt className="text-muted">{r.fs.mode === 'battery' ? 'Range' : 'Avg mileage'}</dt><dd className="tabular">{r.fs.averageMileage ? f.mileage(r.fs.averageMileage, r.v.fuelType, r.fs.mode) : '—'}</dd></div>
+                </dl>
+              </li>
+            ))}
+            <li className="flex justify-between pt-3 text-sm font-semibold">
+              <span>All vehicles</span>
+              <span className="tabular">{f.money(sum(rows.map((r) => r.total)))}</span>
+            </li>
+          </ul>
+          <div className="-mx-5 hidden overflow-x-auto sm:-mx-6 sm:block">
             <table className="w-full min-w-[680px] text-sm">
               <thead>
                 <tr className="border-b border-line text-left text-xs text-muted">

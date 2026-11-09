@@ -62,7 +62,7 @@ export function VehicleDetail({ id }: { id: string }) {
         <ArrowLeft className="size-4" /> My Garage
       </a>
       <div className="mb-6 grid gap-5 md:grid-cols-[280px_1fr] md:items-end">
-        <VehicleThumb vehicle={v} className="aspect-[16/10] w-full rounded-[22px] border border-line" iconClass="size-20" />
+        <VehicleThumb vehicle={v} className={`w-full rounded-[22px] border border-line ${v.image ? 'aspect-[16/10]' : 'aspect-[3/1] lg:aspect-[16/10]'}`} iconClass="size-16" />
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
             {v.registrationNumber && <Plate className="text-[12px]">{v.registrationNumber}</Plate>}
