@@ -1,0 +1,146 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/instrument-sans';
+@import '@fontsource-variable/bricolage-grotesque';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Paper / Graphite / Asphalt / Lime / Moss + reserved status colours. */
+:root {
+  --bg: #f5f5f0;
+  --surface: #ffffff;
+  --surface-2: #ecece6;
+  --line: #dfdfd8;
+  --fg: #1b1d21;
+  --muted: #5c5f66;
+  --faint: #868991;
+  --accent: #c4f135;
+  --accent-strong: #b5e622;
+  --accent-ink: #1b1d21;
+  --accent-text: #3d6b00;
+  --console: #1b1d21;
+  --console-2: #26292e;
+  --console-fg: #e9eae4;
+  --console-muted: #8f939b;
+  --ok: #2d7d46;
+  --warn: #9a5c00;
+  --danger: #c43737;
+  --info: #2a6fc4;
+  --shadow: 0 1px 0 rgb(27 29 33 / 0.04), 0 12px 32px -18px rgb(27 29 33 / 0.22);
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --series-5: #e87ba4;
+  --series-6: #008300;
+  --series-7: #6250d6;
+  color-scheme: light;
+}
+
+.dark {
+  --bg: #121316;
+  --surface: #1a1c20;
+  --surface-2: #23262b;
+  --line: #2d3036;
+  --fg: #ecede7;
+  --muted: #a4a7ae;
+  --faint: #7b7f87;
+  --accent: #c4f135;
+  --accent-strong: #d3ff4c;
+  --accent-ink: #121316;
+  --accent-text: #c4f135;
+  --console: #0c0d0f;
+  --console-2: #1a1c20;
+  --console-fg: #e9eae4;
+  --console-muted: #868a92;
+  --ok: #5ccb83;
+  --warn: #f0a63a;
+  --danger: #f26d6d;
+  --info: #66a6f2;
+  --shadow: 0 1px 0 rgb(0 0 0 / 0.2), 0 16px 36px -20px rgb(0 0 0 / 0.7);
+  --series-1: #3987e5;
+  --series-2: #d95926;
+  --series-3: #199e70;
+  --series-4: #c98500;
+  --series-5: #d55181;
+  --series-6: #008300;
+  --series-7: #9085e9;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: 'Instrument Sans Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Bricolage Grotesque Variable', 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-text: var(--accent-text);
+  --color-console: var(--console);
+  --color-console-2: var(--console-2);
+  --color-console-fg: var(--console-fg);
+  --color-console-muted: var(--console-muted);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --shadow-soft: var(--shadow);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+body {
+  overflow-x: hidden;
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+:focus-visible {
+  outline: 2px solid var(--accent-text);
+  outline-offset: 2px;
+}
+.on-console :focus-visible {
+  outline-color: var(--accent);
+}
+.dark input[type='date']::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: 0.7;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.recharts-wrapper *:focus {
+  outline: none;
+}
+/* Number-plate chip for registration numbers. */
+.plate {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-stretch: 85%;
+  letter-spacing: 0.06em;
+  border: 1.5px solid currentColor;
+  border-radius: 5px;
+  padding: 1px 6px;
+  line-height: 1.35;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

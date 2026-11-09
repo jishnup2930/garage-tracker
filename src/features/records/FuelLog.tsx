@@ -1,0 +1,73 @@
+import { useMemo, useState } from 'react'
+import { ShowMore } from './CostList'
+import type { FuelEntry } from '../../types'
+import { useGarage } from '../../store/AppStore'
+import { useUI } from '../../store/ui'
+import { useFormat } from '../../hooks/useFormat'
+import { mileageSegments } from '../../lib/calc'
+import { cn } from '../../lib/cn'
+
+/** Refill log. Mileage shows only on full fills that close a valid full-to-full segment. */
+export function FuelLog({ entries, showVehicle = true }: { entries: FuelEntry[]; showVehicle?: boolean }) {
+  const { data, vehicleById } = useGarage()
+  const { openForm } = useUI()
+  const f = useFormat()
+  const mileageById = useMemo(() => {
+    const m = new Map<string, number>()
+    const byVehicle = new Map<string, FuelEntry[]>()
+    for (const e of data.fuel) byVehicle.set(e.vehicleId, [...(byVehicle.get(e.vehicleId) ?? []), e])
+    for (const list of byVehicle.values()) {
+      const segs = mileageSegments(list)
+      for (const s of segs) {
+        const e = list.find((x) => x.isFullTank && x.odometer === s.odometer && x.date === s.date)
+        if (e) m.set(e.id, s.mileage)
+      }
+    }
+    return m
+  }, [data.fuel])
+  const [count, setCount] = useState(30)
+  const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date) || b.odometer - a.odometer)
+
+  return (
+    <div className="-mx-5 overflow-x-auto sm:-mx-6">
+      <table className="w-full min-w-[640px] text-sm">
+        <thead>
+          <tr className="border-b border-line text-left text-xs text-muted">
+            <th className="py-2 pl-5 font-medium sm:pl-6">Date</th>
+            {showVehicle && <th className="py-2 font-medium">Vehicle</th>}
+            <th className="py-2 text-right font-medium">Odometer</th>
+            <th className="py-2 text-right font-medium">Quantity</th>
+            <th className="py-2 text-right font-medium">Price</th>
+            <th className="py-2 text-right font-medium">Total</th>
+            <th className="py-2 pr-5 text-right font-medium sm:pr-6">Mileage</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sorted.slice(0, count).map((e) => {
+            const unit = f.u.volume(e.fuelType)
+            const mileage = mileageById.get(e.id)
+            return (
+              <tr key={e.id} className="cursor-pointer border-b border-line/70 last:border-0 hover:bg-surface-2" onClick={() => openForm({ kind: 'fuel', id: e.id })}>
+                <td className="py-2.5 pl-5 sm:pl-6">
+                  <button className="font-medium hover:underline" onClick={(ev) => (ev.stopPropagation(), openForm({ kind: 'fuel', id: e.id }))}>
+                    {f.date(e.date)}
+                  </button>
+                  <span className="block text-xs text-muted">{e.isFullTank ? 'Full' : 'Partial'}{e.fuelStation ? `, ${e.fuelStation}` : ''}</span>
+                </td>
+                {showVehicle && <td className="py-2.5">{vehicleById.get(e.vehicleId)?.nickname}</td>}
+                <td className="py-2.5 text-right tabular">{f.num(e.odometer)}</td>
+                <td className="py-2.5 text-right tabular">
+                  {f.num(e.quantity, 2)} {unit}
+                </td>
+                <td className="py-2.5 text-right tabular text-muted">{f.moneyExact(e.pricePerUnit)}</td>
+                <td className="py-2.5 text-right font-semibold tabular">{f.money(e.totalCost)}</td>
+                <td className={cn('py-2.5 pr-5 text-right tabular sm:pr-6', !mileage && 'text-faint')}>{mileage ? `${f.num(mileage, 1)} ${f.u.efficiency(e.fuelType)}` : '—'}</td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+      {sorted.length > count && <div className="px-5 sm:px-6"><ShowMore left={sorted.length - count} onClick={() => setCount((c) => c + 30)} /></div>}
+    </div>
+  )
+}
