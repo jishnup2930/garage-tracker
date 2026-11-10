@@ -97,10 +97,10 @@ export function VehicleForm({ formId, vehicle, onSaved }: { formId: string; vehi
       </fieldset>
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Brand" error={errors.brand?.message}>
-          {(p) => <Input {...p} placeholder="e.g. Honda" {...register('brand')} />}
+          {(p) => <Input {...p} placeholder="e.g. Maruti Suzuki" autoComplete="off" {...register('brand')} />}
         </Field>
         <Field label="Model" error={errors.model?.message}>
-          {(p) => <Input {...p} placeholder="e.g. City" {...register('model')} />}
+          {(p) => <Input {...p} placeholder="e.g. Swift" autoComplete="off" {...register('model')} />}
         </Field>
         <Field label="Fuel" error={errors.fuelType?.message}>
           {(p) => (
