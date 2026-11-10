@@ -4,13 +4,15 @@ import { Button } from '../ui/Button'
 import { useUI } from '../../store/ui'
 import { cn } from '../../lib/cn'
 
-export function QuickAdd({ compact, vehicleId }: { compact?: boolean; vehicleId?: string }) {
+/** `align`: which edge of the button the menu lines up with. Use 'left' when the button sits at the left of the screen. */
+export function QuickAdd({ compact, vehicleId, align }: { compact?: boolean; vehicleId?: string; align?: 'left' | 'right' }) {
   const { openForm } = useUI()
   const i = 'size-4 text-muted'
   return (
     <Menu
       label="Quick add"
       up={compact}
+      align={align}
       items={[
         { label: 'Log a refill', icon: <Fuel className={i} />, onSelect: () => openForm({ kind: 'fuel', vehicleId }) },
         { label: 'Log maintenance', icon: <Wrench className={i} />, onSelect: () => openForm({ kind: 'maintenance', vehicleId }) },

@@ -81,7 +81,7 @@ export function VehicleDetail({ id }: { id: string }) {
             {v.type}, {v.fuelType}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <QuickAdd vehicleId={v.id} />
+            <QuickAdd vehicleId={v.id} align="left" />
             <Button variant="outline" icon={<Pencil className="size-4" />} onClick={() => openForm({ kind: 'vehicle', id: v.id })}>
               Edit
             </Button>

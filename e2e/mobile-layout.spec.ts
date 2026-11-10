@@ -41,3 +41,25 @@ test('forms open centred and fully on screen', async ({ page }) => {
     await expect(dialog).toBeHidden()
   }
 })
+
+test('every + Add menu opens fully on screen', async ({ page }) => {
+  await onboardWithDemo(page)
+  const check = async (where: string) => {
+    const menu = page.getByRole('menu')
+    await expect(menu).toBeVisible()
+    await page.waitForTimeout(200) // open animation
+    const box = (await menu.boundingBox())!
+    expect(box.x, `${where}: left edge`).toBeGreaterThanOrEqual(0)
+    expect(box.x + box.width, `${where}: right edge`).toBeLessThanOrEqual(WIDTH)
+    await page.keyboard.press('Escape')
+  }
+  await page.getByRole('button', { name: 'Quick add' }).last().click() // bottom bar
+  await check('bottom bar')
+  await page.goto('/#/garage')
+  await page.locator('article a').first().click()
+  await page.getByRole('button', { name: 'Quick add' }).first().click() // vehicle page, left side
+  await check('vehicle page')
+  await page.goto('/#/garage')
+  await page.getByRole('button', { name: /^Actions for/ }).first().click() // card ⋮, right side
+  await check('vehicle card')
+})
