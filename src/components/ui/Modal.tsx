@@ -29,8 +29,11 @@ export function Modal({ open, onClose, title, description, children, footer, siz
     const overflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     requestAnimationFrame(() => {
-      const first = panel.current?.querySelector<HTMLElement>('[data-autofocus]') ?? panel.current?.querySelector<HTMLElement>('input,select,textarea') ?? panel.current
-      first?.focus()
+      // On touch screens focus the dialog itself: focusing a field pops the keyboard and makes iOS Safari
+      // scroll/zoom the page towards it, which pushes the dialog off-centre.
+      const touch = window.matchMedia('(pointer: coarse)').matches
+      const first = touch ? panel.current : (panel.current?.querySelector<HTMLElement>('[data-autofocus]') ?? panel.current?.querySelector<HTMLElement>('input,select,textarea') ?? panel.current)
+      first?.focus({ preventScroll: true })
     })
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {

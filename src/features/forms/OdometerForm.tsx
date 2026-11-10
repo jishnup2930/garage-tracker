@@ -33,7 +33,7 @@ export function OdometerForm({ formId, vehicleId, onSaved }: { formId: string; v
         {(p) => <VehicleSelect {...p} {...register('vehicleId')} />}
       </Field>
       <Field label="Odometer now" hint={v ? `Last reading ${f.dist(v.currentOdometer)}, on ${f.date(lastReadingDate(v, data))}.` : undefined} error={errors.odometer?.message}>
-        {(p) => <Input {...p} inputMode="numeric" suffix={f.u.distance} placeholder={v ? String(v.currentOdometer) : undefined} autoFocus {...register('odometer')} />}
+        {(p) => <Input {...p} inputMode="numeric" suffix={f.u.distance} placeholder={v ? String(v.currentOdometer) : undefined} data-autofocus {...register('odometer')} />}
       </Field>
     </form>
   )

@@ -35,6 +35,8 @@ test('forms open centred and fully on screen', async ({ page }) => {
     else expect(box.y, `${item} not pinned to the top`).toBeGreaterThan(0)
     if (item === 'Log a refill') await page.screenshot({ path: test.info().outputPath('refill-dialog.png') })
     expect(await dialog.evaluate((el) => el.scrollWidth <= el.clientWidth), `${item} content fits`).toBe(true)
+    // No field is focused on open: on iPhones that pops the keyboard and shifts the dialog.
+    expect(await page.evaluate(() => document.activeElement?.getAttribute('role')), `${item} focuses the dialog, not a field`).toBe('dialog')
     await page.keyboard.press('Escape')
     await expect(dialog).toBeHidden()
   }

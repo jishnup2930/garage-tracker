@@ -168,7 +168,7 @@ export function FuelForm({ formId, record, vehicleId, onSaved }: { formId: strin
         {byBattery ? (
           <>
             <Field label="Battery before charging" error={errors.batteryFrom?.message}>
-              {(p) => <Input {...p} inputMode="numeric" suffix="%" placeholder="e.g. 20" autoFocus={!record} {...register('batteryFrom')} />}
+              {(p) => <Input {...p} inputMode="numeric" suffix="%" placeholder="e.g. 20" data-autofocus={!record || undefined} {...register('batteryFrom')} />}
             </Field>
             <Field label="Battery after charging" error={errors.batteryTo?.message}>
               {(p) => <Input {...p} inputMode="numeric" suffix="%" {...register('batteryTo')} />}
@@ -193,7 +193,7 @@ export function FuelForm({ formId, record, vehicleId, onSaved }: { formId: strin
         ) : (
           <>
             <Field label="Amount paid" error={errors.amount?.message}>
-              {(p) => <Input {...p} inputMode="decimal" suffix={data.settings.currency} placeholder="e.g. 500" autoFocus={!record} {...register('amount')} />}
+              {(p) => <Input {...p} inputMode="decimal" suffix={data.settings.currency} placeholder="e.g. 500" data-autofocus={!record || undefined} {...register('amount')} />}
             </Field>
             <Field label="Odometer" error={errors.odometer?.message}>
               {(p) => <Input {...p} inputMode="numeric" suffix={u.distance} {...register('odometer')} />}
