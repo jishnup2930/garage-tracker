@@ -173,3 +173,12 @@ body {
     radial-gradient(110% 120% at 100% 100%, color-mix(in oklab, var(--tone) 22%, transparent), transparent 65%),
     var(--surface);
 }
+/* iOS Safari gives date inputs a wide intrinsic width that ignores width:100%, overflowing narrow forms. */
+input[type='date'] {
+  min-width: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
+input[type='date']::-webkit-date-and-time-value {
+  text-align: left;
+}

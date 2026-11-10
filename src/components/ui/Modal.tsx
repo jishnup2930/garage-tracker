@@ -16,7 +16,7 @@ interface ModalProps {
 
 const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
 
-/** Accessible dialog: focus trap, Escape to close, focus restore. A bottom sheet on phones. */
+/** Accessible dialog: focus trap, Escape to close, focus restore. Centred on every screen size. */
 export function Modal({ open, onClose, title, description, children, footer, size = 'md' }: ModalProps) {
   const id = useId()
   const panel = useRef<HTMLDivElement>(null)
@@ -55,7 +55,7 @@ export function Modal({ open, onClose, title, description, children, footer, siz
   return createPortal(
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-6">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6">
           <motion.div className="absolute inset-0 bg-[#0c0d0f]/45 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose} />
           <motion.div
             ref={panel}
@@ -64,12 +64,13 @@ export function Modal({ open, onClose, title, description, children, footer, siz
             aria-labelledby={`${id}-t`}
             aria-describedby={description ? `${id}-d` : undefined}
             tabIndex={-1}
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.97 }}
             transition={{ type: 'spring', stiffness: 420, damping: 36 }}
             className={cn(
-              'relative flex max-h-[92dvh] w-full flex-col rounded-t-3xl border border-line bg-surface shadow-soft focus:outline-none sm:rounded-3xl',
+              // min-w-0 + max-w-full: wide content (e.g. iOS date pickers) must scroll inside, never push the dialog off-screen.
+              'relative flex max-h-[88dvh] w-full max-w-full min-w-0 flex-col overflow-hidden rounded-3xl border border-line bg-surface shadow-soft focus:outline-none',
               size === 'sm' ? 'sm:max-w-md' : size === 'md' ? 'sm:max-w-xl' : 'sm:max-w-3xl',
             )}
           >
@@ -88,8 +89,8 @@ export function Modal({ open, onClose, title, description, children, footer, siz
                 <X className="size-5" />
               </button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 sm:px-6">{children}</div>
-            {footer && <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line px-5 py-3.5 pb-[max(0.875rem,env(safe-area-inset-bottom))] sm:px-6">{footer}</div>}
+            <div className="min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-5 pb-5 sm:px-6">{children}</div>
+            {footer && <div className="flex flex-wrap items-center justify-end gap-2 border-t border-line px-5 py-3.5 sm:px-6">{footer}</div>}
           </motion.div>
         </div>
       )}
